@@ -5,20 +5,23 @@ from matplotlib import pyplot as plt
 try:
     import cupy as cp
 except ImportError:
-    print("Cupy not available, will not be able to run GPU based computation")
+    pass
+    # print("Cupy not available, will not be able to run GPU based computation")
     # Still define the name, we'll take care of it later but in this way it's still possible
     # to see that gPIE exists for example.
     cp = None
-from PtyLab.Reconstruction.Reconstruction import Reconstruction
+import logging
+import sys
+
+import tqdm
+
 from PtyLab.Engines.BaseEngine import BaseEngine
 from PtyLab.ExperimentalData.ExperimentalData import ExperimentalData
-from PtyLab.Params.Params import Params
 from PtyLab.Monitor.Monitor import Monitor
+from PtyLab.Params.Params import Params
+from PtyLab.Reconstruction.Reconstruction import Reconstruction
 from PtyLab.utils.gpuUtils import getArrayModule
 from PtyLab.utils.utils import fft2c, ifft2c
-import logging
-import tqdm
-import sys
 
 
 class qNewton(BaseEngine):
@@ -35,7 +38,8 @@ class qNewton(BaseEngine):
         self.logger = logging.getLogger("qNewton")
         self.logger.info("Sucesfully created qNewton qNewton_engine")
 
-        self.logger.info("Wavelength attribute: %s", self.reconstruction.wavelength)
+        self.logger.info("Wavelength attribute: %s",
+                         self.reconstruction.wavelength)
         self.initializeReconstructionParams()
 
     def initializeReconstructionParams(self):
@@ -85,7 +89,8 @@ class qNewton(BaseEngine):
                 )
 
                 # probe update
-                self.reconstruction.probe = self.probeUpdate(objectPatch, DELTA)
+                self.reconstruction.probe = self.probeUpdate(
+                    objectPatch, DELTA)
 
             # get error metric
             self.getErrorMetrics()
@@ -108,7 +113,8 @@ class qNewton(BaseEngine):
         Temporary barebones update
         """
         xp = getArrayModule(objectPatch)
-        Pmax = xp.max(xp.sum(xp.abs(self.reconstruction.probe), axis=(0, 1, 2, 3)))
+        Pmax = xp.max(
+            xp.sum(xp.abs(self.reconstruction.probe), axis=(0, 1, 2, 3)))
         frac = (
             xp.abs(self.reconstruction.probe)
             / Pmax
@@ -125,7 +131,8 @@ class qNewton(BaseEngine):
 
         """
         xp = getArrayModule(objectPatch)
-        Omax = xp.max(xp.sum(xp.abs(self.reconstruction.object), axis=(0, 1, 2, 3)))
+        Omax = xp.max(
+            xp.sum(xp.abs(self.reconstruction.object), axis=(0, 1, 2, 3)))
         frac = (
             xp.abs(objectPatch)
             / Omax

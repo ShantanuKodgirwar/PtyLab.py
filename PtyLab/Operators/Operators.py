@@ -10,7 +10,8 @@ from functools import lru_cache
 try:
     import cupy as cp
 except ImportError:
-    print("cupy not avialable")
+    pass
+    # print("cupy not avialable")
 import numpy as np
 
 from PtyLab import Params, Reconstruction
