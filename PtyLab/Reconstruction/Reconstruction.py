@@ -1,22 +1,22 @@
-import time
-import numpy as np
-from PtyLab.ExperimentalData.ExperimentalData import ExperimentalData
-from copy import copy
 import logging
+import time
+from copy import copy
+
 import h5py
-
-# logging.basicConfig(level=logging.DEBUG)
-from PtyLab.Regularizers import metric_at, TV
-
-from PtyLab.utils.initializationFunctions import initialProbeOrObject
-from PtyLab.utils.gpuUtils import (
-    transfer_fields_to_cpu,
-    transfer_fields_to_gpu,
-    getArrayModule,
-)
+import numpy as np
 from PtyLab import Params
-from PtyLab.utils.gpuUtils import asNumpyArray
+from PtyLab.ExperimentalData.ExperimentalData import ExperimentalData
+# logging.basicConfig(level=logging.DEBUG)
+from PtyLab.Regularizers import TV, metric_at
+from PtyLab.utils.gpuUtils import (asNumpyArray, getArrayModule,
+                                   transfer_fields_to_cpu,
+                                   transfer_fields_to_gpu)
+from PtyLab.utils.initializationFunctions import initialProbeOrObject
 
+from pathlib import Path
+
+from bokeh.layouts import row
+from bokeh.plotting import figure, output_file, save
 
 def calculate_pixel_positions(encoder_corrected, dxo, No, Np, asint):
     """
@@ -206,11 +206,6 @@ class Reconstruction(object):
         t0 = time.time()
         p_new = self.positions.T
         p_old = self.positions0.T
-
-        from bokeh.plotting import figure, output_file, save
-        from bokeh.layouts import row
-
-        from pathlib import Path
 
         if saveit:
             output = Path("plots/alignment.html")
@@ -686,7 +681,7 @@ class Reconstruction(object):
             return positions.astype(int)
         else:
             return calculate_pixel_positions(
-                self.encoder_corrected, self.dxo, self.No, self.Np, asint=True
+               self.encoder_corrected, self.dxo, self.No, self.Np, asint=True
             )
 
     # system property list
