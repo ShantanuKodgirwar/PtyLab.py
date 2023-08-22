@@ -1,12 +1,14 @@
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+import napari
+import numpy as np
 
 # import napari
 from matplotlib.colors import LogNorm
-import numpy as np
-from .Plots import ObjectProbeErrorPlot, DiffractionDataPlot
-from PtyLab.utils.visualisation import setColorMap, complex2rgb
+from PtyLab.utils.visualisation import complex2rgb, setColorMap
+
+from .Plots import DiffractionDataPlot, ObjectProbeErrorPlot
 
 
 class AbstractMonitor(object):
@@ -214,7 +216,9 @@ class Monitor(AbstractMonitor):
         self.defaultMonitor.drawNow()
 
         if self.screenshot_directory is not None:
-            self.defaultMonitor.figure.savefig(Path(self.screenshot_directory) / f'{len(error)}.png')
+            self.defaultMonitor.figure.savefig(
+                Path(self.screenshot_directory) / f"{len(error)}.png"
+            )
 
     def describe_parameters(self, *args, **kwargs):
         pass
