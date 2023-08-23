@@ -1,12 +1,12 @@
-from matplotlib.image import AxesImage
 import matplotlib as mpl
-
+import numpy as np
 # mpl.use('TkAgg')
 from matplotlib import pyplot as plt
-import numpy as np
-from PtyLab.utils import gpuUtils
-from PtyLab.utils.visualisation import modeTile, complexPlot, complex2rgb
+from matplotlib.image import AxesImage
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+
+from PtyLab.utils import gpuUtils
+from PtyLab.utils.visualisation import complex2rgb, complexPlot, modeTile
 
 
 class ObjectProbeErrorPlot(object):
@@ -57,7 +57,7 @@ class ObjectProbeErrorPlot(object):
         self.ax_error_metric.set_title("Error metric")
         self.ax_error_metric.grid(True)
         self.ax_error_metric.grid(
-            b=True, which="minor", color="#999999", linestyle="-", alpha=0.2
+            animate=True, which="minor", color="#999999", linestyle="-", alpha=0.2
         )
         self.ax_error_metric.set_xlabel("iterations")
         self.ax_error_metric.set_ylabel("error")
