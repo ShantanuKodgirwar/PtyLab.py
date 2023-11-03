@@ -4,22 +4,25 @@ from matplotlib import pyplot as plt
 try:
     import cupy as cp
 except ImportError:
-    print("Cupy not available, will not be able to run GPU based computation")
+    pass
+    # print("Cupy not available, will not be able to run GPU based computation")
     # Still define the name, we'll take care of it later but in this way it's still possible
     # to see that gPIE exists for example.
     cp = None
 
-# PtyLab imports
-from PtyLab.Reconstruction.Reconstruction import Reconstruction
+import logging
+import sys
+
+import tqdm
+
 from PtyLab.Engines.BaseEngine import BaseEngine
 from PtyLab.ExperimentalData.ExperimentalData import ExperimentalData
-from PtyLab.Params.Params import Params
-from PtyLab.utils.gpuUtils import getArrayModule
 from PtyLab.Monitor.Monitor import Monitor
+from PtyLab.Params.Params import Params
+# PtyLab imports
+from PtyLab.Reconstruction.Reconstruction import Reconstruction
+from PtyLab.utils.gpuUtils import getArrayModule
 from PtyLab.utils.utils import fft2c, ifft2c
-import logging
-import tqdm
-import sys
 
 
 class ePIE(BaseEngine):
@@ -35,7 +38,8 @@ class ePIE(BaseEngine):
         super().__init__(reconstruction, experimentalData, params, monitor)
         self.logger = logging.getLogger("ePIE")
         self.logger.info("Sucesfully created ePIE ePIE_engine")
-        self.logger.info("Wavelength attribute: %s", self.reconstruction.wavelength)
+        self.logger.info("Wavelength attribute: %s",
+                         self.reconstruction.wavelength)
         self.initializeReconstructionParams()
 
     def initializeReconstructionParams(self):
@@ -72,13 +76,15 @@ class ePIE(BaseEngine):
                 with cp.cuda.Stream(non_blocking=True) as stream:
                     if self.params.OPRP:
                         self.reconstruction.probe = (
-                            self.reconstruction.probe_storage.get(positionIndex)
+                            self.reconstruction.probe_storage.get(
+                                positionIndex)
                         )
                     row, col = self.reconstruction.positions[positionIndex]
                     sy = slice(row, row + self.reconstruction.Np)
                     sx = slice(col, col + self.reconstruction.Np)
                     # note that object patch has size of probe array
-                    objectPatch = self.reconstruction.object[..., sy, sx].copy()
+                    objectPatch = self.reconstruction.object[..., sy, sx].copy(
+                    )
 
                     # make exit surface wave
                     self.reconstruction.esw = objectPatch * self.reconstruction.probe
@@ -95,7 +101,8 @@ class ePIE(BaseEngine):
                     )
 
                     # probe update
-                    self.reconstruction.probe = self.probeUpdate(objectPatch, DELTA)
+                    self.reconstruction.probe = self.probeUpdate(
+                        objectPatch, DELTA)
                     if self.params.OPRP:
                         self.reconstruction.probe_storage.push(
                             self.reconstruction.probe,

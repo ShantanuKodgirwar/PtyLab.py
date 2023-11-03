@@ -1,24 +1,26 @@
 import numpy as np
-from matplotlib import pyplot as plt
 import tqdm
+from matplotlib import pyplot as plt
 
 try:
     import cupy as cp
 except ImportError:
-    print("Cupy not available, will not be able to run GPU based computation")
+    pass
+    # print("Cupy not available, will not be able to run GPU based computation")
     # Still define the name, we'll take care of it later but in this way it's still possible
     # to see that gPIE exists for example.
     cp = None
 
-# PtyLab imports
-from PtyLab.Reconstruction.Reconstruction import Reconstruction
+import logging
+
 from PtyLab.Engines.BaseEngine import BaseEngine
 from PtyLab.ExperimentalData.ExperimentalData import ExperimentalData
-from PtyLab.Params.Params import Params
-from PtyLab.utils.gpuUtils import getArrayModule, asNumpyArray
 from PtyLab.Monitor.Monitor import Monitor
 from PtyLab.Operators.Operators import aspw
-import logging
+from PtyLab.Params.Params import Params
+# PtyLab imports
+from PtyLab.Reconstruction.Reconstruction import Reconstruction
+from PtyLab.utils.gpuUtils import asNumpyArray, getArrayModule
 
 
 class e3PIE(BaseEngine):
@@ -35,7 +37,8 @@ class e3PIE(BaseEngine):
         self.logger = logging.getLogger("e3PIE")
         self.logger.info("Sucesfully created e3PIE e3PIE_engine")
 
-        self.logger.info("Wavelength attribute: %s", self.reconstruction.wavelength)
+        self.logger.info("Wavelength attribute: %s",
+                         self.reconstruction.wavelength)
 
         self.initializeReconstructionParams()
 
@@ -89,7 +92,8 @@ class e3PIE(BaseEngine):
                 for sliceLoop in range(1, self.reconstruction.nslice):
                     self.reconstruction.probe[:, :, :, sliceLoop, ...] = xp.fft.ifft2(
                         xp.fft.fft2(
-                            self.reconstruction.esw[:, :, :, sliceLoop - 1, ...]
+                            self.reconstruction.esw[:,
+                                                    :, :, sliceLoop - 1, ...]
                         )
                         * self.H
                     )
@@ -132,7 +136,8 @@ class e3PIE(BaseEngine):
                     DELTA = (
                         xp.fft.ifft2(
                             xp.fft.fft2(
-                                self.reconstruction.probe[:, :, :, sliceLoop, ...]
+                                self.reconstruction.probe[:,
+                                                          :, :, sliceLoop, ...]
                             )
                             * self.optimizableH.conj()
                         )
@@ -154,7 +159,8 @@ class e3PIE(BaseEngine):
                 )
 
             # set porduct of all object slices
-            self.reconstruction.objectProd = np.prod(self.reconstruction.object, 3)
+            self.reconstruction.objectProd = np.prod(
+                self.reconstruction.object, 3)
 
             # get error metric
             self.getErrorMetrics()

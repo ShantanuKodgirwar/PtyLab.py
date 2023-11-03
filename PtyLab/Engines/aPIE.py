@@ -8,7 +8,8 @@ from PtyLab.utils.visualisation import hsvplot
 try:
     import cupy as cp
 except ImportError:
-    print("Cupy not available, will not be able to run GPU based computation")
+    pass
+    # print("Cupy not available, will not be able to run GPU based computation")
     # Still define the name, we'll take care of it later but in this way it's still possible
     # to see that gPIE exists for example.
     cp = None
@@ -42,7 +43,8 @@ class aPIE(BaseEngine):
         super().__init__(reconstruction, experimentalData, params, monitor)
         self.logger = logging.getLogger("aPIE")
         self.logger.info("Sucesfully created aPIE aPIE_engine")
-        self.logger.info("Wavelength attribute: %s", self.reconstruction.wavelength)
+        self.logger.info("Wavelength attribute: %s",
+                         self.reconstruction.wavelength)
         self.initializeReconstructionParams()
 
     def initializeReconstructionParams(self):
@@ -95,7 +97,8 @@ class aPIE(BaseEngine):
                     [
                         self.reconstruction.theta,
                         self.reconstruction.theta
-                        + thetaSearchRadiusList[loop] * (-1 + 2 * np.random.rand()),
+                        + thetaSearchRadiusList[loop] *
+                        (-1 + 2 * np.random.rand()),
                     ]
                 )
                 + self.reconstruction.thetaMomentum
@@ -156,8 +159,10 @@ class aPIE(BaseEngine):
                     kind="linear",
                     fill_value=0,
                 )
-                self.experimentalData.W = abs(fw(Xq[0], self.reconstruction.xd))
-                self.experimentalData.W = np.nan_to_num(self.experimentalData.W)
+                self.experimentalData.W = abs(
+                    fw(Xq[0], self.reconstruction.xd))
+                self.experimentalData.W = np.nan_to_num(
+                    self.experimentalData.W)
                 self.experimentalData.W[self.experimentalData.W == 0] = 1e-3
                 self.experimentalData.W = xp.array(self.experimentalData.W)
 
@@ -180,7 +185,8 @@ class aPIE(BaseEngine):
                     sy = slice(row1, row1 + self.reconstruction.Np)
                     sx = slice(col1, col1 + self.reconstruction.Np)
                     # note that object patch has size of probe array
-                    objectPatch = self.reconstruction.object[..., sy, sx].copy()
+                    objectPatch = self.reconstruction.object[..., sy, sx].copy(
+                    )
 
                     # make exit surface wave
                     self.reconstruction.esw = objectPatch * self.reconstruction.probe
@@ -197,13 +203,15 @@ class aPIE(BaseEngine):
                     )
 
                     # probe update
-                    self.reconstruction.probe = self.probeUpdate(objectPatch, DELTA)
+                    self.reconstruction.probe = self.probeUpdate(
+                        objectPatch, DELTA)
 
                 # get error metric
                 self.getErrorMetrics()
                 # remove error from error history
                 errorTemp[k] = self.reconstruction.error[-1]
-                self.reconstruction.error = np.delete(self.reconstruction.error, -1)
+                self.reconstruction.error = np.delete(
+                    self.reconstruction.error, -1)
 
                 # apply Constraints
                 self.applyConstraints(loop)

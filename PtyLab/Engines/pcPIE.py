@@ -5,7 +5,8 @@ from PtyLab.utils import gpuUtils
 try:
     import cupy as cp
 except ImportError:
-    print("Cupy not available, will not be able to run GPU based computation")
+    pass
+    # print("Cupy not available, will not be able to run GPU based computation")
     # Still define the name, we'll take care of it later but in this way it's still possible
     # to see that gPIE exists for example.
     cp = None

@@ -1,12 +1,12 @@
-from matplotlib.image import AxesImage
 import matplotlib as mpl
+import numpy as np
 
 # mpl.use('TkAgg')
 from matplotlib import pyplot as plt
-import numpy as np
-from PtyLab.utils import gpuUtils
-from PtyLab.utils.visualisation import modeTile, complexPlot, complex2rgb
+from matplotlib.image import AxesImage
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+from PtyLab.utils import gpuUtils
+from PtyLab.utils.visualisation import complex2rgb, complexPlot, modeTile
 
 
 class ObjectProbeErrorPlot(object):
@@ -57,7 +57,7 @@ class ObjectProbeErrorPlot(object):
         self.ax_error_metric.set_title("Error metric")
         self.ax_error_metric.grid(True)
         self.ax_error_metric.grid(
-            b=True, which="minor", color="#999999", linestyle="-", alpha=0.2
+            animated=True, which="minor", color="#999999", linestyle="-", alpha=0.2
         )
         self.ax_error_metric.set_xlabel("iterations")
         self.ax_error_metric.set_ylabel("error")
@@ -73,7 +73,7 @@ class ObjectProbeErrorPlot(object):
         optimizable,
         objectPlot,
         amplitudeScalingFactor=1,
-        **kwargs
+        **kwargs,
     ):
         OE = modeTile(object_estimate, normalize=True)
         if objectPlot == "complex":
@@ -113,7 +113,6 @@ class ObjectProbeErrorPlot(object):
     def updateProbe(
         self, probe_estimate, optimizable, amplitudeScalingFactor=1, **kwargs
     ):
-
         # from PtyLab.Operators.Operators import fft2c
         #
         # probe_estimate_ff = fft2c(probe_estimate)
@@ -130,7 +129,10 @@ class ObjectProbeErrorPlot(object):
         else:
             self.im_probe.set_data(PE)
             # self.im_probe_ff.set_data(PE_ff)
-            if optimizable.npsm > 1 and optimizable.purityProbe == optimizable.purityProbe:
+            if (
+                optimizable.npsm > 1
+                and optimizable.purityProbe == optimizable.purityProbe
+            ):
                 self.txt_purityProbe.set_text(
                     "Probe estimate\nPurity: %i" % (100 * optimizable.purityProbe) + "%"
                 )
@@ -160,7 +162,9 @@ class ObjectProbeErrorPlot(object):
                     np.max(error_estimate) / np.min(error_estimate)
                 ) / np.log(len(error_estimate))
                 self.ax_error_metric.set_aspect(1 / data_aspect)
-                self.ax_error_metric.set_title(f'Error metric (it {len(error_estimate)})')
+                self.ax_error_metric.set_title(
+                    f"Error metric (it {len(error_estimate)})"
+                )
 
     def drawNow(self):
         """
@@ -215,7 +219,6 @@ class DiffractionDataPlot(object):
         Iestimate = gpuUtils.asNumpyArray(Iestimate)
 
         if self.firstrun:
-
             self.im_Iestimated: AxesImage = self.ax_Iestimated.imshow(
                 np.log10(np.squeeze(Iestimate + 1)), cmap=cmap, interpolation=None
             )
