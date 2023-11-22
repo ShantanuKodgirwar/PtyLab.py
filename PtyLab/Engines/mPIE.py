@@ -10,17 +10,29 @@ except ImportError:
     # to see that gPIE exists for example.
     cp = None
 
-# PtyLab imports
-from PtyLab.Reconstruction.Reconstruction import Reconstruction
+try:
+    # utilizing weights and biases for 
+    # logging mPIE runs
+    import wandb
+    wandb.login()
+    
+    
+except ImportError:
+    pass
+
+import logging
+import sys
+
+import tqdm
+
 from PtyLab.Engines.BaseEngine import BaseEngine
 from PtyLab.ExperimentalData.ExperimentalData import ExperimentalData
-from PtyLab.Params.Params import Params
-from PtyLab.utils.gpuUtils import getArrayModule, asNumpyArray
 from PtyLab.Monitor.Monitor import Monitor
+from PtyLab.Params.Params import Params
+# PtyLab imports
+from PtyLab.Reconstruction.Reconstruction import Reconstruction
+from PtyLab.utils.gpuUtils import asNumpyArray, getArrayModule
 from PtyLab.utils.utils import fft2c, ifft2c
-import logging
-import tqdm
-import sys
 
 
 class mPIE(BaseEngine):
@@ -41,6 +53,13 @@ class mPIE(BaseEngine):
         self.initializeReconstructionParams()
         self.params.momentumAcceleration = True
         self.name = "mPIE"
+        self.wandb_project_name = "mPIE reconstruction"
+        self.wandb_log_name = "mPIE runs"
+        
+    def tracking(self, fig):
+        track_wandb = wandb.init(project=self.wandb_name)
+        wandb.log({f"{self.wandb_log_name}": fig})
+
 
     @property
     def keepPatches(self):
@@ -91,7 +110,14 @@ class mPIE(BaseEngine):
 
         self.reconstruction.probeWindow = np.abs(self.reconstruction.probe)
 
-    def reconstruct(self, experimentalData=None, reconstruction=None):
+    def reconstruct(
+        self, 
+        experimentalData=None, 
+        reconstruction=None, 
+        tracking_progress=False, 
+        wandb_project = "mPIE reconstruction", 
+        wandb_log_name = "mPIE runs"
+        ):
         """Reconstruct object. If experimentalData is given, it replaces the current data. Idem for reconstruction."""
 
         self.changeExperimentalData(experimentalData)
@@ -105,6 +131,10 @@ class mPIE(BaseEngine):
         self.pbar = tqdm.trange(
             self.numIterations, desc="mPIE", file=sys.stdout, leave=True
         )
+        
+        if tracking_progress:
+            runs = wandb.init(project=wandb_project)
+        
         for loop in self.pbar:
             # set position order
             self.setPositionOrder()
@@ -173,7 +203,10 @@ class mPIE(BaseEngine):
 
             # show reconstruction
             self.showReconstruction(loop)
-
+            
+            if tracking_progress:
+                wandb.log({f"{wandb_log_name}": self.monitor.defaultMonitor.figure})
+            
         if self.params.gpuFlag:
             self.logger.info("switch to cpu")
             self._move_data_to_cpu()
