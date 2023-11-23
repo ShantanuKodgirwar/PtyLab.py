@@ -11,12 +11,11 @@ except ImportError:
     cp = None
 
 try:
-    # utilizing weights and biases for 
+    # utilizing weights and biases for
     # logging mPIE runs
     import wandb
-    wandb.login()
-    
-    
+
+
 except ImportError:
     pass
 
@@ -29,6 +28,7 @@ from PtyLab.Engines.BaseEngine import BaseEngine
 from PtyLab.ExperimentalData.ExperimentalData import ExperimentalData
 from PtyLab.Monitor.Monitor import Monitor
 from PtyLab.Params.Params import Params
+
 # PtyLab imports
 from PtyLab.Reconstruction.Reconstruction import Reconstruction
 from PtyLab.utils.gpuUtils import asNumpyArray, getArrayModule
@@ -53,13 +53,6 @@ class mPIE(BaseEngine):
         self.initializeReconstructionParams()
         self.params.momentumAcceleration = True
         self.name = "mPIE"
-        self.wandb_project_name = "mPIE reconstruction"
-        self.wandb_log_name = "mPIE runs"
-        
-    def tracking(self, fig):
-        track_wandb = wandb.init(project=self.wandb_name)
-        wandb.log({f"{self.wandb_log_name}": fig})
-
 
     @property
     def keepPatches(self):
@@ -72,7 +65,6 @@ class mPIE(BaseEngine):
 
     @keepPatches.setter
     def keepPatches(self, keep_them):
-
         if keep_them:
             self.logger.info("Keeping patches!")
             self.patches = np.zeros(
@@ -111,13 +103,13 @@ class mPIE(BaseEngine):
         self.reconstruction.probeWindow = np.abs(self.reconstruction.probe)
 
     def reconstruct(
-        self, 
-        experimentalData=None, 
-        reconstruction=None, 
-        tracking_progress=False, 
-        wandb_project = "mPIE reconstruction", 
-        wandb_log_name = "mPIE runs"
-        ):
+        self,
+        experimentalData=None,
+        reconstruction=None,
+        tracking_progress=False,
+        wandb_project="mPIE reconstruction",
+        wandb_log_name="mPIE runs",
+    ):
         """Reconstruct object. If experimentalData is given, it replaces the current data. Idem for reconstruction."""
 
         self.changeExperimentalData(experimentalData)
@@ -131,14 +123,17 @@ class mPIE(BaseEngine):
         self.pbar = tqdm.trange(
             self.numIterations, desc="mPIE", file=sys.stdout, leave=True
         )
-        
+
         if tracking_progress:
+            wandb.login()
             runs = wandb.init(project=wandb_project)
-        
+
         for loop in self.pbar:
             # set position order
             self.setPositionOrder()
-            self.pbar_pos = tqdm.tqdm(self.positionIndices, leave=False, desc='ptychogram', file=sys.stdout)
+            self.pbar_pos = tqdm.tqdm(
+                self.positionIndices, leave=False, desc="ptychogram", file=sys.stdout
+            )
             for positionLoop, positionIndex in enumerate(self.pbar_pos):
                 # get object patch, stored as self.probe
                 # self.reconstruction.make_probe(positionIndex)
@@ -162,7 +157,10 @@ class mPIE(BaseEngine):
                 # pg.QtGui.QGuiApplication.processEvents()
 
                 # object update
-                if self.params.objectTVregSwitch and loop % self.params.objectTVfreq == 0:
+                if (
+                    self.params.objectTVregSwitch
+                    and loop % self.params.objectTVfreq == 0
+                ):
                     object_patch = self.objectPatchUpdate_TV(objectPatch, DELTA)
                 else:
                     object_patch = self.objectPatchUpdate(objectPatch, DELTA)
@@ -184,8 +182,10 @@ class mPIE(BaseEngine):
                 # self.reconstruction.push_probe_update(self.reconstruction.probe, positionIndex, self.experimentalData.ptychogram.shape[0])
 
                 if self.params.positionCorrectionSwitch:
-                    shifter = self.positionCorrection(objectPatch, positionIndex, sy, sx)
-                    #self.pbar_pos.write(f'Corr: {shifter[0]*1e6:.2f} um x {shifter[1]*1e6:.2f} um')
+                    shifter = self.positionCorrection(
+                        objectPatch, positionIndex, sy, sx
+                    )
+                    # self.pbar_pos.write(f'Corr: {shifter[0]*1e6:.2f} um x {shifter[1]*1e6:.2f} um')
 
                 # momentum updates
                 if np.random.rand(1) > 0.95:
@@ -203,10 +203,10 @@ class mPIE(BaseEngine):
 
             # show reconstruction
             self.showReconstruction(loop)
-            
+
             if tracking_progress:
                 wandb.log({f"{wandb_log_name}": self.monitor.defaultMonitor.figure})
-            
+
         if self.params.gpuFlag:
             self.logger.info("switch to cpu")
             self._move_data_to_cpu()
