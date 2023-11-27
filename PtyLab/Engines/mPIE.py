@@ -53,12 +53,6 @@ class mPIE(BaseEngine):
         self.initializeReconstructionParams()
         self.params.momentumAcceleration = True
         self.name = "mPIE"
-        self.wandb_project_name = "mPIE reconstruction"
-        self.wandb_log_name = "mPIE runs"
-
-    def tracking(self, fig):
-        track_wandb = wandb.init(project=self.wandb_name)
-        wandb.log({f"{self.wandb_log_name}": fig})
 
     @property
     def keepPatches(self):
