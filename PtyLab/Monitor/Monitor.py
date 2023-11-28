@@ -1,11 +1,8 @@
 from pathlib import Path
 
-import matplotlib.pyplot as plt
 import napari
 import numpy as np
 
-# import napari
-from matplotlib.colors import LogNorm
 from PtyLab.utils.visualisation import complex2rgb, setColorMap
 
 from .Plots import DiffractionDataPlot, ObjectProbeErrorPlot
