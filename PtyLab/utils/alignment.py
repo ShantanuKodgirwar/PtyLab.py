@@ -1,5 +1,7 @@
+import napari
 import numpy as np
-from PtyLab import Reconstruction, ExperimentalData, Params, Engines
+
+from PtyLab import Engines, ExperimentalData, Params, Reconstruction
 
 
 def show_alignment(
@@ -9,7 +11,6 @@ def show_alignment(
     engine: Engines.BaseEngine,
 ):
     """Show a viewer which gives information about the alignment of the probe and the object"""
-    import napari
 
     viewer = napari.Viewer()
     # sort all the images by distance to the center
@@ -20,7 +21,7 @@ def show_alignment(
     ptycho_ordered = data.ptychogram[order]
     # do one iteration of all of them
 
-    from PtyLab.Operators.Operators import object2detector, detector2object
+    from PtyLab.Operators.Operators import detector2object, object2detector
 
     reconstruction.initializeObjectProbe()
     reconstruction.esw = reconstruction.probe
