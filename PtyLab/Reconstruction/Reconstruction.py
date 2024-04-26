@@ -1,22 +1,26 @@
 import logging
 import time
 from copy import copy
+from pathlib import Path
 
 import h5py
 import numpy as np
-from PtyLab import Params
-from PtyLab.ExperimentalData.ExperimentalData import ExperimentalData
-# logging.basicConfig(level=logging.DEBUG)
-from PtyLab.Regularizers import TV, metric_at
-from PtyLab.utils.gpuUtils import (asNumpyArray, getArrayModule,
-                                   transfer_fields_to_cpu,
-                                   transfer_fields_to_gpu)
-from PtyLab.utils.initializationFunctions import initialProbeOrObject
-
-from pathlib import Path
-
 from bokeh.layouts import row
 from bokeh.plotting import figure, output_file, save
+
+from PtyLab import Params
+from PtyLab.ExperimentalData.ExperimentalData import ExperimentalData
+
+# logging.basicConfig(level=logging.DEBUG)
+from PtyLab.Regularizers import TV, metric_at
+from PtyLab.utils.gpuUtils import (
+    asNumpyArray,
+    getArrayModule,
+    transfer_fields_to_cpu,
+    transfer_fields_to_gpu,
+)
+from PtyLab.utils.initializationFunctions import initialProbeOrObject
+
 
 def calculate_pixel_positions(encoder_corrected, dxo, No, Np, asint):
     """
@@ -147,9 +151,11 @@ class Reconstruction(object):
             self.logger.debug(f"Changing sample-detector distance to {new_value}")
             self.dxp = self.wavelength * self._zo / self.Ld
         elif self.data.operationMode == "FPM":
-             self.logger.debug(f"Changing illumination-to-sample distance to {new_value}")
-             self.zled = self._zo
-             
+            self.logger.debug(
+                f"Changing illumination-to-sample distance to {new_value}"
+            )
+            self.zled = self._zo
+
     def computeParameters(self):
         """
         compute parameters that can be altered by the user later.
@@ -358,19 +364,23 @@ class Reconstruction(object):
             self.No,
             self.No,
         )
-        if self.initialObject == 'recon':
+        if self.initialObject == "recon":
             # Load the object from an existing reconstruction
-            self.initialGuessObject = self.loadResults(self.initialProbe_filename, datatype='object')
+            self.initialGuessObject = self.loadResults(
+                self.initialProbe_filename, datatype="object"
+            )
         else:
-            self.initialGuessObject = initialProbeOrObject(self.shape_O, self.initialObject, self, self.logger).astype(np.complex64)
+            self.initialGuessObject = initialProbeOrObject(
+                self.shape_O, self.initialObject, self, self.logger
+            ).astype(np.complex64)
 
         # self.initialGuessObject *= 1e-2
 
     @staticmethod
-    def loadResults(fileName, datatype='probe'):
-        '''
+    def loadResults(fileName, datatype="probe"):
+        """
         Loads data from a ptylab reconstruction file.
-        '''
+        """
         with h5py.File(fileName) as archive:
             data = np.copy(np.array(archive[datatype]))
         return data
@@ -392,8 +402,10 @@ class Reconstruction(object):
             int(self.Np),
         )
 
-        if self.initialProbe == 'recon':
-            self.initialGuessProbe = self.loadResults(self.initialProbe_filename, datatype='probe')
+        if self.initialProbe == "recon":
+            self.initialGuessProbe = self.loadResults(
+                self.initialProbe_filename, datatype="probe"
+            )
         else:
             if force:
                 self.initialGuessProbe = None
@@ -457,14 +469,13 @@ class Reconstruction(object):
             probe = np.array(archive["probe"])
             N_probe_read = probe.shape[-1]
             # roughly extract the center
-            ss = slice(np.clip(N_probe_read//2-self.Np//2, 0, None), np.clip(N_probe_read//2-self.Np//2+int(self.Np), 0, N_probe_read))
-            probe = probe[
-                : self.nlambda,
-                :1,
-                : self.npsm,
-                : self.nslice,
-                ss,ss
-            ]
+            ss = slice(
+                np.clip(N_probe_read // 2 - self.Np // 2, 0, None),
+                np.clip(
+                    N_probe_read // 2 - self.Np // 2 + int(self.Np), 0, N_probe_read
+                ),
+            )
+            probe = probe[: self.nlambda, :1, : self.npsm, : self.nslice, ss, ss]
             if np.all(np.array(probe.shape) == np.array(self.shape_P)):
                 self.probe = probe
             else:
@@ -524,9 +535,9 @@ class Reconstruction(object):
                     hf.create_dataset("dxp", data=self.dxp, dtype="f")
                     hf.create_dataset("purityProbe", data=self.purityProbe, dtype="f")
                     hf.create_dataset("purityObject", data=self.purityObject, dtype="f")
-                    hf.create_dataset('I object', data=abs(self.object), dtype='f')
-                    hf.create_dataset('I probe', data=abs(self.probe), dtype='f')
-                    hf.create_dataset('encoder_corrected', data=self.encoder_corrected)
+                    hf.create_dataset("I object", data=abs(self.object), dtype="f")
+                    hf.create_dataset("I probe", data=abs(self.probe), dtype="f")
+                    hf.create_dataset("encoder_corrected", data=self.encoder_corrected)
 
                     if hasattr(self, "theta"):
                         if self.theta != None:
@@ -551,8 +562,10 @@ class Reconstruction(object):
                     "object", data=squeezefun(self.object), dtype="complex64"
                 )
         elif type == "probe_stack":
-            hf = h5py.File(fileName + '_probe_stack.hdf5', 'w')
-            hf.create_dataset('probe_stack', data=self.probe_stack.get(), dtype='complex64')
+            hf = h5py.File(fileName + "_probe_stack.hdf5", "w")
+            hf.create_dataset(
+                "probe_stack", data=self.probe_stack.get(), dtype="complex64"
+            )
         print("The reconstruction results (%s) have been saved" % type)
 
     # detector coordinates
@@ -563,7 +576,7 @@ class Reconstruction(object):
     @property
     def xd(self):
         """Detector coordinates 1D"""
-        return np.linspace(-self.Nd / 2, self.Nd / 2, np.int(self.Nd)) * self.dxd
+        return np.linspace(-self.Nd / 2, self.Nd / 2, int(self.Nd)) * self.dxd
 
     @property
     def Xd(self):
@@ -633,7 +646,7 @@ class Reconstruction(object):
     def xo(self):
         """object coordinates 1D"""
         try:
-            return np.linspace(-self.No / 2, self.No / 2, np.int(self.No)) * self.dxo
+            return np.linspace(-self.No / 2, self.No / 2, int(self.No)) * self.dxo
         except AttributeError as e:
             raise AttributeError(
                 e, 'object pixel number "No" and/or pixel size "dxo" not defined yet'
@@ -686,7 +699,7 @@ class Reconstruction(object):
             return positions.astype(int)
         else:
             return calculate_pixel_positions(
-               self.encoder_corrected, self.dxo, self.No, self.Np, asint=True
+                self.encoder_corrected, self.dxo, self.No, self.Np, asint=True
             )
 
     # system property list
@@ -713,10 +726,10 @@ class Reconstruction(object):
         transfer_fields_to_gpu(self, self.possible_GPU_fields, self.logger)
 
     def describe_reconstruction(self):
-        minmax_tv = ''
+        minmax_tv = ""
         try:
-            minmax_tv = f'(min: {self.params.TV_autofocus_min_z*1e3}, max: {self.params.TV_autofocus_max_z*1e3}.)'
-        except TypeError: # one of them is none
+            minmax_tv = f"(min: {self.params.TV_autofocus_min_z*1e3}, max: {self.params.TV_autofocus_max_z*1e3}.)"
+        except TypeError:  # one of them is none
             pass
         info = f"""
         Experimental data:
@@ -760,10 +773,10 @@ class Reconstruction(object):
         raise NotImplementedError("Q2 is no longer available")
 
     def TV_autofocus(self, params: Params, loop):
-
         """Perform an autofocusing step based on optimizing the total variation.
 
-        If not required, returns none. Otherwise, returns the value of the TV at the current z0."""
+        If not required, returns none. Otherwise, returns the value of the TV at the current z0.
+        """
         start_time = time.time()
 
         if self.data.operationMode == "FPM":
@@ -838,12 +851,16 @@ class Reconstruction(object):
         self.logger.info(
             f"TV autofocus took {end_time-start_time} seconds, and moved focus by {-delta_z*1e6} micron"
         )
-        indices = [nplanes//2, np.argmax(merit)]
+        indices = [nplanes // 2, np.argmax(merit)]
         OEs = OEs[indices]
-        phexp = OEs.sum((-2,-1), keepdims=True).conj()
+        phexp = OEs.sum((-2, -1), keepdims=True).conj()
         phexp = phexp / abs(phexp)
         OEs *= phexp
-        return merit[nplanes//2] / asNumpyArray(abs(self.object[..., sy, sx]).mean()), np.hstack(OEs), (scores, self.zo)
+        return (
+            merit[nplanes // 2] / asNumpyArray(abs(self.object[..., sy, sx]).mean()),
+            np.hstack(OEs),
+            (scores, self.zo),
+        )
 
     def reset_TV_autofocus(self):
         """Reset the settings of TV autofocus. Can be useful to reset the memory effect if the steps are getting really large."""
