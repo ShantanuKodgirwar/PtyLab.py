@@ -1,12 +1,28 @@
+import warnings
+
 import matplotlib as mpl
 import numpy as np
-
-# mpl.use('TkAgg')
+from IPython.display import display, update_display
 from matplotlib import pyplot as plt
 from matplotlib.image import AxesImage
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+
 from PtyLab.utils import gpuUtils
 from PtyLab.utils.visualisation import complex2rgb, complexPlot, modeTile
+
+
+def is_inline():
+    """Default IPython (jupyter notebook) backend"""
+    return mpl.get_backend() == "module://matplotlib_inline.backend_inline"
+
+
+from PtyLab.utils import gpuUtils
+from PtyLab.utils.visualisation import complex2rgb, complexPlot, modeTile
+
+
+def is_inline():
+    """Default IPython (jupyter notebook) backend"""
+    return mpl.get_backend() == "module://matplotlib_inline.backend_inline"
 
 
 class ObjectProbeErrorPlot(object):
@@ -23,6 +39,10 @@ class ObjectProbeErrorPlot(object):
         self.figNum = figNum
         self._createFigure()
 
+        # Get a reference to the figure canvas
+        self.canvas = self.figure.canvas
+        self.display_id = None
+
     def update_z(self, *args, **kwargs):
         """Update the sample-detector distance. Does nothing at the moment."""
         pass
@@ -33,7 +53,7 @@ class ObjectProbeErrorPlot(object):
         :return:
         """
 
-        # add an axis for the object
+        plt.ion()
         self.figure, axes = plt.subplot_mosaic(
             """Ape""",
             num=self.figNum,
@@ -41,7 +61,7 @@ class ObjectProbeErrorPlot(object):
             empty_sentinel=" ",
             constrained_layout=False,
         )
-        # self.figure, axes = plt.subplots(1, 3, num=self.figNum, squeeze=False, clear=True, figsize=(10, 3))
+
         self.ax_object = axes["A"]
         self.ax_probe = axes["p"]
         # self.ax_probe_ff = axes["P"]
@@ -166,7 +186,7 @@ class ObjectProbeErrorPlot(object):
                     f"Error metric (it {len(error_estimate)})"
                 )
 
-    def drawNow(self):
+    def drawNowScript(self):
         """
         Forces the image to be drawn
         :return:
@@ -179,8 +199,24 @@ class ObjectProbeErrorPlot(object):
         if not plt.fignum_exists(self.figNum):
             self.figure.show()
 
-        self.figure.canvas.draw()
-        self.figure.canvas.flush_events()
+        self.canvas.draw_idle()
+        self.canvas.flush_events()
+
+    def drawNowIpython(self):
+        if self.firstrun:
+            display(self.figure, display_id=str(self.figNum))
+            self.display_id = str(self.figNum)  # Store the display ID
+            self.firstrun = False
+        else:
+            update_display(self.figure, display_id=self.display_id)
+        self.canvas.draw_idle()
+        self.canvas.flush_events()
+
+    def drawNow(self):
+        if is_inline():
+            self.drawNowIpython()
+        else:
+            self.drawNowScript()
 
 
 class DiffractionDataPlot(object):
@@ -197,6 +233,10 @@ class DiffractionDataPlot(object):
         self.figNum = figNum
         self._createFigure()
 
+        # Get a reference to the figure canvas
+        self.canvas = self.figure.canvas
+        self.display_id = None  # Added attribute
+
     def _createFigure(self) -> None:
         """
         Create the figure.
@@ -204,6 +244,7 @@ class DiffractionDataPlot(object):
         """
 
         # add an axis for the object
+        plt.ion()
         self.figure, axes = plt.subplots(
             1, 2, num=self.figNum, squeeze=False, clear=True, figsize=(8, 3)
         )
@@ -252,7 +293,7 @@ class DiffractionDataPlot(object):
             self.im_Imeasured.set_data(np.log10(np.squeeze(Imeasured + 1)))
         self.im_Imeasured.autoscale()
 
-    def drawNow(self):
+    def drawNowScript(self):
         """
         Forces the image to be drawn
         :return:
@@ -265,8 +306,25 @@ class DiffractionDataPlot(object):
         if not plt.fignum_exists(self.figNum):
             self.figure.show()
 
-        self.figure.canvas.draw()
-        self.figure.canvas.flush_events()
+        self.canvas.draw_idle()
+        self.canvas.flush_events()
+
+    def drawNowIpython(self):
+        if self.firstrun:
+            display(self.figure, display_id=str(self.figNum))
+            self.display_id = str(self.figNum)
+            self.firstrun = False
+        else:
+            update_display(self.figure, display_id=self.display_id)
+
+        self.canvas.draw_idle()
+        self.canvas.flush_events()
+
+    def drawNow(self):
+        if is_inline():
+            self.drawNowIpython()
+        else:
+            self.drawNowScript()
 
     def update_view(self, Iestimated, Imeasured, cmap):
         """Update the I measured and I estimated and make sure that the colormaps have the same limits"""

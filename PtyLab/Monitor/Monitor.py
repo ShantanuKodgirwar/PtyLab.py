@@ -1,11 +1,13 @@
+import warnings
 from pathlib import Path
 
-import napari
+import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.colors import LogNorm
 
 from PtyLab.utils.visualisation import complex2rgb, setColorMap
 
-from .Plots import DiffractionDataPlot, ObjectProbeErrorPlot
+from .Plots import DiffractionDataPlot, ObjectProbeErrorPlot, is_inline
 
 
 class AbstractMonitor(object):
@@ -210,6 +212,10 @@ class Monitor(AbstractMonitor):
             amplitudeScalingFactor=self.probePlotContrast,
         )
         self.defaultMonitor.update_z(zo)
+        if is_inline() and self.figureUpdateFrequency < 5:
+            warnings.warn(
+                "For faster reconstruction with inline backend, set `monitor.figureUpdateFrequency = 5` or higher."
+            )
         self.defaultMonitor.drawNow()
 
         if self.screenshot_directory is not None:
@@ -230,6 +236,10 @@ class Monitor(AbstractMonitor):
         )
         # self.diffractionDataMonitor.updateIestimated(Iestimated, cmap=self.cmapDiffraction)
         # self.diffractionDataMonitor.updateImeasured(Imeasured, cmap=self.cmapDiffraction)
+        if is_inline():
+            warnings.warn(
+                'For faster reconstruction use an interactive backend such as qt5Agg or tkagg or set `monitor.verboseLevel = "low"`. '
+            )
         self.diffractionDataMonitor.drawNow()
 
 
@@ -265,6 +275,11 @@ class DummyMonitor(object):
 
 
 class NapariMonitor(DummyMonitor):
+    try:
+        import napari
+    except ImportError:
+        print("Install napari for this implementation")
+
     def initializeVisualisation(self):
         self.viewer = napari.Viewer()
         self.viewer.show()

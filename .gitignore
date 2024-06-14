@@ -7,3 +7,5 @@
 *.lock
 logs_tensorboard
 *.hdf5
+example_data/*
+!example_data/how_to_get_files.md
