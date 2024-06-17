@@ -16,15 +16,6 @@ def is_inline():
     return True if "inline" in mpl.get_backend().lower() else False
 
 
-from PtyLab.utils import gpuUtils
-from PtyLab.utils.visualisation import complex2rgb, complexPlot, modeTile
-
-
-def is_inline():
-    """Default IPython (jupyter notebook) backend"""
-    return mpl.get_backend() == "module://matplotlib_inline.backend_inline"
-
-
 class ObjectProbeErrorPlot(object):
     def __init__(self, figNum=1):
         """Create a monitor.
