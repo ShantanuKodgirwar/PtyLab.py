@@ -5,7 +5,7 @@ import numpy as np
 
 from PtyLab.utils.visualisation import complex2rgb, setColorMap
 
-from .Plots import DiffractionDataPlot, ObjectProbeErrorPlot
+from .Plots import DiffractionDataPlot, ObjectProbeErrorPlot, is_inline
 
 
 class AbstractMonitor(object):
