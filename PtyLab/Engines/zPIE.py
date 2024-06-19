@@ -1,9 +1,6 @@
-# import napari
 import numpy as np
 import tqdm
 from matplotlib import pyplot as plt
-
-from PtyLab.utils.visualisation import hsvplot
 
 try:
     import cupy as cp
@@ -83,9 +80,15 @@ class zPIE(BaseEngine):
         )
 
         if viewer is None:
-            import napari
-
-            viewer = napari.Viewer()
+            # currently a hacky way for this, these napari implementations must 
+            # later be moved to an optional sub-package. 
+            try:
+                import napari
+                viewer = napari.Viewer()
+            except ImportError:
+                msg = "Install napari to access this `NapariMonitor` implementation"
+                raise ImportError(msg)
+                
         viewer.add_image(defocii)
 
     def reconstruct(self, experimentalData=None, reconstruction=None):
