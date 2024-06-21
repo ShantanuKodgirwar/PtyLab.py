@@ -4,7 +4,6 @@ from matplotlib import pyplot as plt
 try:
     import cupy as cp
 except ImportError:
-    pass
     # print("Cupy not available, will not be able to run GPU based computation")
     # Still define the name, we'll take care of it later but in this way it's still possible
     # to see that gPIE exists for example.
@@ -19,6 +18,7 @@ from PtyLab.Engines.BaseEngine import BaseEngine
 from PtyLab.ExperimentalData.ExperimentalData import ExperimentalData
 from PtyLab.Monitor.Monitor import Monitor
 from PtyLab.Params.Params import Params
+
 # PtyLab imports
 from PtyLab.Reconstruction.Reconstruction import Reconstruction
 from PtyLab.utils.gpuUtils import asNumpyArray, getArrayModule
@@ -38,8 +38,7 @@ class multiPIE(BaseEngine):
         super().__init__(reconstruction, experimentalData, params, monitor)
         self.logger = logging.getLogger("multiPIE")
         self.logger.info("Sucesfully created multiPIE multiPIE_engine")
-        self.logger.info("Wavelength attribute: %s",
-                         self.reconstruction.wavelength)
+        self.logger.info("Wavelength attribute: %s", self.reconstruction.wavelength)
         # initialize multiPIE Params
         self.initializeReconstructionParams()
         self.params.momentumAcceleration = True
@@ -100,8 +99,7 @@ class multiPIE(BaseEngine):
                 )
 
                 # probe update
-                self.reconstruction.probe = self.probeUpdate(
-                    objectPatch, DELTA)
+                self.reconstruction.probe = self.probeUpdate(objectPatch, DELTA)
 
                 # momentum updates
                 if np.random.rand(1) > 0.95:

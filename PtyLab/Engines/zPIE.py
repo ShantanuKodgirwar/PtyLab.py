@@ -5,7 +5,6 @@ from matplotlib import pyplot as plt
 try:
     import cupy as cp
 except ImportError:
-    pass
     # print("Cupy not available, will not be able to run GPU based computation")
     # Still define the name, we'll take care of it later but in this way it's still possible
     # to see that gPIE exists for example.
@@ -19,6 +18,7 @@ from PtyLab.ExperimentalData.ExperimentalData import ExperimentalData
 from PtyLab.Monitor.Monitor import Monitor
 from PtyLab.Operators.Operators import aspw
 from PtyLab.Params.Params import Params
+
 # PtyLab imports
 from PtyLab.Reconstruction.Reconstruction import Reconstruction
 from PtyLab.utils.gpuUtils import asNumpyArray, getArrayModule
@@ -37,8 +37,7 @@ class zPIE(BaseEngine):
         super().__init__(reconstruction, experimentalData, params, monitor)
         self.logger = logging.getLogger("zPIE")
         self.logger.info("Sucesfully created zPIE zPIE_engine")
-        self.logger.info("Wavelength attribute: %s",
-                         self.reconstruction.wavelength)
+        self.logger.info("Wavelength attribute: %s", self.reconstruction.wavelength)
         self.initializeReconstructionParams()
         self.name = "zPIE"
 
@@ -58,8 +57,7 @@ class zPIE(BaseEngine):
         self.zMomentun = 0
 
     def show_defocus(self, viewer=None, scanrange_times_dof=1000, N_points=10):
-        z = np.linspace(-1, 1, N_points) * \
-            scanrange_times_dof * self.reconstruction.DoF
+        z = np.linspace(-1, 1, N_points) * scanrange_times_dof * self.reconstruction.DoF
 
         from PtyLab.Operators.Operators import aspw
 
@@ -80,15 +78,16 @@ class zPIE(BaseEngine):
         )
 
         if viewer is None:
-            # currently a hacky way for this, these napari implementations must 
-            # later be moved to an optional sub-package. 
+            # currently a hacky way for this, these napari implementations must
+            # later be moved to an optional sub-package.
             try:
                 import napari
+
                 viewer = napari.Viewer()
             except ImportError:
                 msg = "Install napari to access this `NapariMonitor` implementation"
                 raise ImportError(msg)
-                
+
         viewer.add_image(defocii)
 
     def reconstruct(self, experimentalData=None, reconstruction=None):
@@ -111,8 +110,7 @@ class zPIE(BaseEngine):
         if not self.focusObject:
             n = self.reconstruction.Np
 
-        X, Y = xp.meshgrid(xp.arange(-n // 2, n // 2),
-                           xp.arange(-n // 2, n // 2))
+        X, Y = xp.meshgrid(xp.arange(-n // 2, n // 2), xp.arange(-n // 2, n // 2))
         w = xp.exp(-((xp.sqrt(X**2 + Y**2) / self.reconstruction.Np) ** 4))
 
         self.pbar = tqdm.trange(
@@ -142,8 +140,7 @@ class zPIE(BaseEngine):
                             self.reconstruction.No // 2 + n // 2,
                         )
                         imProp, _ = aspw(
-                            u=xp.squeeze(
-                                self.reconstruction.object[..., roi, roi]),
+                            u=xp.squeeze(self.reconstruction.object[..., roi, roi]),
                             z=dz[k],
                             wavelength=self.reconstruction.wavelength,
                             L=self.reconstruction.dxo * n,
@@ -152,8 +149,7 @@ class zPIE(BaseEngine):
                     else:
                         if self.reconstruction.nlambda == 1:
                             imProp, _ = aspw(
-                                u=xp.squeeze(
-                                    self.reconstruction.probe[..., :, :]),
+                                u=xp.squeeze(self.reconstruction.probe[..., :, :]),
                                 z=dz[k],
                                 wavelength=self.reconstruction.wavelength,
                                 L=self.reconstruction.Lp,
@@ -171,10 +167,8 @@ class zPIE(BaseEngine):
                     imProps.append(imProp.get())
                     # TV approach
                     aleph = 1e-2
-                    gradx = xp.roll(imProp, -1, axis=-1) - \
-                        xp.roll(imProp, 1, axis=-1)
-                    grady = xp.roll(imProp, -1, axis=-2) - \
-                        xp.roll(imProp, 1, axis=-2)
+                    gradx = xp.roll(imProp, -1, axis=-1) - xp.roll(imProp, 1, axis=-1)
+                    grady = xp.roll(imProp, -1, axis=-2) - xp.roll(imProp, 1, axis=-2)
                     merit.append(
                         xp.sum(xp.sqrt(abs(gradx) ** 2 + abs(grady) ** 2 + aleph))
                     )
@@ -251,8 +245,7 @@ class zPIE(BaseEngine):
                 )
 
                 # probe update
-                self.reconstruction.probe = self.probeUpdate(
-                    objectPatch, DELTA)
+                self.reconstruction.probe = self.probeUpdate(objectPatch, DELTA)
             # yield positionLoop, positionIndex
 
             # get error metric
@@ -299,8 +292,7 @@ class zPIE(BaseEngine):
                     idx = np.rint(10**idx).astype("int")
 
                     line.set_xdata(idx)
-                    line.set_ydata(
-                        np.array(self.reconstruction.zHistory)[idx] * 1e3)
+                    line.set_ydata(np.array(self.reconstruction.zHistory)[idx] * 1e3)
 
                     score_line.set_ydata(merit)
                     ax_score.set_ylim(merit.min() - 1, merit.max() + 1)

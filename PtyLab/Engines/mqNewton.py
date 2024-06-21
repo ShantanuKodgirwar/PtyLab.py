@@ -5,7 +5,6 @@ from matplotlib import pyplot as plt
 try:
     import cupy as cp
 except ImportError:
-    pass
     # print("Cupy not available, will not be able to run GPU based computation")
     # Still define the name, we'll take care of it later but in this way it's still possible
     # to see that gPIE exists for example.
@@ -36,11 +35,9 @@ class mqNewton(BaseEngine):
         # but not necessarily to ePIE reconstruction
         super().__init__(reconstruction, experimentalData, params, monitor)
         self.logger = logging.getLogger("mqNewton")
-        self.logger.info(
-            "Sucesfully created momentum accelerated qNewton mqNewton")
+        self.logger.info("Sucesfully created momentum accelerated qNewton mqNewton")
 
-        self.logger.info("Wavelength attribute: %s",
-                         self.reconstruction.wavelength)
+        self.logger.info("Wavelength attribute: %s", self.reconstruction.wavelength)
         self.initializeReconstructionParams()
         # initialize momentum
         self.reconstruction.initializeObjectMomentum()
@@ -118,8 +115,7 @@ class mqNewton(BaseEngine):
                 )
 
                 # probe update
-                self.reconstruction.probe = self.probeUpdate(
-                    objectPatch, DELTA)
+                self.reconstruction.probe = self.probeUpdate(objectPatch, DELTA)
 
                 # momentum updates
                 self.objectMomentumUpdate(loop)
@@ -229,8 +225,7 @@ class mqNewton(BaseEngine):
 
     def objectPatchUpdate(self, objectPatch: np.ndarray, DELTA: np.ndarray):
         xp = getArrayModule(objectPatch)
-        Pmax = xp.max(
-            xp.sum(xp.abs(self.reconstruction.probe), axis=(0, 1, 2, 3)))
+        Pmax = xp.max(xp.sum(xp.abs(self.reconstruction.probe), axis=(0, 1, 2, 3)))
         frac = (
             xp.abs(self.reconstruction.probe)
             / Pmax
@@ -243,8 +238,7 @@ class mqNewton(BaseEngine):
 
     def probeUpdate(self, objectPatch: np.ndarray, DELTA: np.ndarray):
         xp = getArrayModule(objectPatch)
-        Omax = xp.max(
-            xp.sum(xp.abs(self.reconstruction.object), axis=(0, 1, 2, 3)))
+        Omax = xp.max(xp.sum(xp.abs(self.reconstruction.object), axis=(0, 1, 2, 3)))
         frac = (
             xp.abs(objectPatch)
             / Omax
