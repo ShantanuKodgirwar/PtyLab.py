@@ -1,24 +1,31 @@
+# %%
 import logging
 
 import numpy as np
 
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("GPU")
 
-def set_gpuSwitch():
+
+def _check_gpu_availability(verbose=False):
+    """Check if GPU and cupy are available."""
     try:
         import cupy
 
         if cupy.cuda.is_available():
-            print(
-                "cupy and cuda available, switching to GPU for faster reconstruction."
-            )
+            if verbose:
+                logger.info("cupy and CUDA available, switching to GPU")
             return True
-        else:
-            print(
-                "cuda unavailable or incompatible, switching to CPU for reconstruction."
-            )
-            return False
-    except:
-        print("cupy unavailable, switching to CPU for reconstruction.")
+            
+    except AttributeError:
+        if verbose:
+            logger.info("CUDA is unavailable, switching to CPU")
+        return False
+    
+    except ImportError:
+        if verbose:
+            logger.info("cupy is unavailable, switching to CPU")
         return False
 
 
@@ -58,7 +65,7 @@ class Params(object):
         self.adaptiveMomentumAcceleration = False  # default False, it is turned on in the individual Engines that use momentum
 
         ## Specific reconstruction settings that are the same for all Engines
-        self.gpuSwitch = set_gpuSwitch()
+        self._gpuSwitch = _check_gpu_availability(verbose=True)
         # This only makes sense on a GPU, not there yet
         self.saveMemory = False
         self.probeUpdateStart = 1
@@ -167,3 +174,25 @@ class Params(object):
 
         # SHG stuff
         self.SHG_probe = False
+
+    @property
+    def gpuSwitch(self):
+        """Get the GPU switch state."""
+        return self._gpuSwitch
+
+    @gpuSwitch.setter
+    def gpuSwitch(self, value: bool):
+        """Set the GPU switch state with appropriate checks."""
+        if value:
+            if _check_gpu_availability():
+                # gpuSwitch is already True and GPU is available, nothing to do
+                pass
+            else:
+                msg = "cuda unavailable or incompatible, please set `self.gpuSwitch = False`"
+                raise AttributeError(msg)
+        else:
+            self._gpuSwitch = value
+            if _check_gpu_availability():
+                logger.warning(
+                    "Disabling GPU switch. If this is unwanted, please set `self.gpuSwitch = True`"
+                )
