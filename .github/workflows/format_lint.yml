@@ -17,7 +17,7 @@ jobs:
       - name: Get changed .py files
         id: changed-files
         run: |
-          git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '\.py$' > changed_py_files.txt
+          git diff --name-only ${{ github.event.before }}...${{ github.sha }} | grep '\.py$' > changed_py_files.txt || true
           
       # Set up Python and cache dependencies
       - name: Set up Python and cache
@@ -35,10 +35,8 @@ jobs:
       # Format changed .py files with black and ruff
       - name: Format with black and ruff
         run: |
-          while IFS= read -r file; do
-            black "$file"
-            ruff --output-format=github --fix "$file"
-          done < changed_py_files.txt
+          cat changed_py_files.txt | xargs black
+          cat changed_py_files.txt | xargs -I % ruff --output-format=github --fix %
       
       # Check for changes and commit if needed
       - name: Check for changes
