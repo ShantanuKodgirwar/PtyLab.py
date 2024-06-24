@@ -1,31 +1,25 @@
-name: Lint with ruff and Format with black
+name: Format
 
 on:
   push:
     branches:
       - main
-      - develop
-  pull_request:
-    branches:
-      - main
+      - dev
+      - testing-CI
 
 jobs:
-  lint-format:
+  format:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       
-      # Determine changed files based on event type
+      # Fetch list of changed files
       - name: Get changed files
         id: changed-files
         run: |
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
-            git diff --name-only ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} > changed_files.txt
-          else
-            git diff --name-only HEAD^ HEAD > changed_files.txt
-          fi
-      
-      # Set up Python and cache
+          git diff --name-only ${{ github.event.before }} ${{ github.sha }} > changed_files.txt
+          
+      # Set up Python and cache dependencies
       - name: Set up Python and cache
         uses: actions/setup-python@v2
         with:
@@ -38,7 +32,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install black ruff==0.4.8
       
-      # Run black and ruff only on changed files
+      # Format changed files with black and ruff
       - name: Format with black and ruff
         run: |
           while IFS= read -r file; do
