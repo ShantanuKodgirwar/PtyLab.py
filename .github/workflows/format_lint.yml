@@ -13,11 +13,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      # Fetch list of changed files
-      - name: Get changed files
+      # Fetch list of changed .py files
+      - name: Get changed .py files
         id: changed-files
         run: |
-          git diff --name-only ${{ github.event.before }} ${{ github.sha }} > changed_files.txt
+          git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '\.py$' > changed_py_files.txt
           
       # Set up Python and cache dependencies
       - name: Set up Python and cache
@@ -32,13 +32,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install black ruff==0.4.8
       
-      # Format changed files with black and ruff
+      # Format changed .py files with black and ruff
       - name: Format with black and ruff
         run: |
           while IFS= read -r file; do
             black "$file"
             ruff --output-format=github --fix "$file"
-          done < changed_files.txt
+          done < changed_py_files.txt
       
       # Check for changes and commit if needed
       - name: Check for changes
