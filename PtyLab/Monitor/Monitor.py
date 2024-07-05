@@ -242,7 +242,7 @@ class Monitor(AbstractMonitor):
 
         if self.screenshot_directory is not None:
             self.defaultMonitor.figure.savefig(
-                Path(self.screenshot_directory) / f"{len(error)}.png"
+                Path(self.screenshot_directory) / f"frame_{len(error)}.png"
             )
 
     def describe_parameters(self, *args, **kwargs):
@@ -293,18 +293,19 @@ class DummyMonitor(object):
 
 
 class NapariMonitor(DummyMonitor):
-            
+
     def initializeVisualisation(self):
-        # currently a hacky way for this class, these napari implementations must 
-        # later be moved an optional sub-package. 
+        # currently a hacky way for this class, these napari implementations must
+        # later be moved an optional sub-package.
         try:
             import napari
+
             self.viewer = napari.Viewer()
             self.viewer.show()
         except ImportError:
             msg = "Install napari to access this `NapariMonitor` implementation"
             raise ImportError(msg)
-        
+
         self.viewer.add_image(name="object estimate", data=np.random.rand(100, 100))
         self.viewer.add_image(name="probe estimate", data=np.random.rand(100, 100))
 

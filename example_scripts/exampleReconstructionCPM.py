@@ -2,8 +2,10 @@
 import logging
 from pathlib import Path
 
+import matplotlib
 import matplotlib.pyplot as plt
 
+matplotlib.use("qt5agg")
 import PtyLab
 from PtyLab import Engines
 from PtyLab.Engines.BaseEngine import smooth_amplitude
@@ -15,10 +17,22 @@ import argparse
 import numpy as np
 
 """ 
-ptycho data reconstructor 
-change data visualization and initialization options manually for now
+Ptychographic dataset reconstruction example.
+
+This is the file that you can start from to learn PtyLab.py, and that you can copy and adopt to your own needs.
+
+For beginner programmers: 
+
+The first lines just give this file the ability to be run as a program, as
+
+```$ python exampleReconstructionCPM.py --file <filename>``` 
+
+If that's not what you want, just disable the line parser.parse_args(), and set fileName and gpu_switch directly.
+
+
 """
 
+##
 # set argparser options
 parser = argparse.ArgumentParser(description="Conventional ptychography reconstruction")
 parser.add_argument(
@@ -37,10 +51,14 @@ gpu_switch = args.gpu
 experimentalData, reconstruction, params, monitor, ePIE_engine = PtyLab.easyInitialize(
     fileName, operationMode="CPM"
 )
-# optional - use tensorboard monitor instead. To see the results, open tensorboard in the directory ./logs_tensorboard
-from PtyLab.Monitor.TensorboardMonitor import TensorboardMonitor
 
-monitor = TensorboardMonitor()
+# optional - use tensorboard monitor instead. To see the results, open tensorboard in the directory ./logs_tensorboard
+tensorboard_monitor = False
+if tensorboard_monitor:
+    from PtyLab.Monitor.TensorboardMonitor import TensorboardMonitor
+
+    monitor = TensorboardMonitor()
+
 
 # turn these two lines on to see the autofocusing in action
 # experimentalData.zo = experimentalData.zo + 1e-2
@@ -172,7 +190,7 @@ for i in range(1, 8):
     params.TV_autofocus = i % 2 == 1
     params.l2reg = i % 2 == 0
 
-    mPIE.reconstruct(experimentalData, reconstruction)
+    mPIE.reconstruct()
     reconstruction.saveResults(f"{getExampleDataFolder()}/recon.hdf5", squeeze=False)
 
 plt.show()
