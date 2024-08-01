@@ -287,6 +287,218 @@ class aPIE(BaseEngine):
 
         # self.thetaSearchRadiusMax = thetaSearchRadiusList[loop]
 
+    def doReconstruction_new(self):
+        self._prepareReconstruction()
+
+        xp = getArrayModule(self.reconstruction.object)
+
+        # linear search
+        thetaSearchRadiusList = np.linspace(
+            self.thetaSearchRadiusMax, self.thetaSearchRadiusMin, self.numIterations
+        )
+
+        self.pbar = tqdm.trange(
+            self.numIterations, desc="aPIE", file=sys.stdout, leave=True
+        )
+        for loop in self.pbar:
+            # save theta search history
+            self.reconstruction.thetaHistory = np.append(
+                self.reconstruction.thetaHistory,
+                asNumpyArray(self.reconstruction.theta),
+            )
+
+            # select two angles (todo check if three angles behave better)
+            theta = (
+                np.array(
+                    [
+                        self.reconstruction.theta,
+                        self.reconstruction.theta
+                        + thetaSearchRadiusList[loop] * (-1 + 2 * np.random.rand()),
+                    ]
+                )
+                + self.reconstruction.thetaMomentum
+            )
+
+            # save object and probe
+            probeTemp = self.reconstruction.probe.copy()
+            objectTemp = self.reconstruction.object.copy()
+
+            # probe and object buffer (todo maybe there's more elegant way )
+            probeBuffer = xp.zeros_like(
+                probeTemp
+            )  # shape=(np.array([probeTemp, probeTemp])).shape)
+            probeBuffer = [probeBuffer, probeBuffer]
+            objectBuffer = xp.zeros_like(
+                objectTemp
+            )  # , shape=(np.array([objectTemp, objectTemp])).shape)  # for polychromatic case this will need to be multimode
+            objectBuffer = [objectBuffer, objectBuffer]
+            # initialize error
+            errorTemp = np.zeros((2, 1))
+
+            for k in range(2):
+                self.reconstruction.probe = probeTemp
+                self.reconstruction.object = objectTemp
+                # reset ptychogram (transform into estimate coordinates)
+                Xq = T_inv(
+                    self.reconstruction.Xd,
+                    self.reconstruction.Yd,
+                    self.reconstruction.zo,
+                    theta[k],
+                )  # todo check if 1D is enough to save time
+                for l in range(self.experimentalData.numFrames):
+                    temp = self.ptychogramUntransformed[l]
+                    f = interp2d(
+                        self.reconstruction.xd,
+                        self.reconstruction.xd,
+                        temp,
+                        kind="linear",
+                        fill_value=0,
+                    )
+                    temp2 = abs(f(Xq[0], self.reconstruction.xd))
+                    temp2 = np.nan_to_num(temp2)
+                    temp2[temp2 < 0] = 0
+                    self.experimentalData.ptychogram[l] = xp.array(temp2)
+
+                # renormalization(for energy conservation) # todo not layer by layer?
+                self.experimentalData.ptychogram = (
+                    self.experimentalData.ptychogram
+                    / np.linalg.norm(self.experimentalData.ptychogram)
+                    * np.linalg.norm(self.ptychogramUntransformed)
+                )
+
+                self.experimentalData.W = np.ones_like(self.reconstruction.Xd)
+                fw = interp2d(
+                    self.reconstruction.xd,
+                    self.reconstruction.xd,
+                    self.experimentalData.W,
+                    kind="linear",
+                    fill_value=0,
+                )
+                self.experimentalData.W = abs(fw(Xq[0], self.reconstruction.xd))
+                self.experimentalData.W = np.nan_to_num(self.experimentalData.W)
+                self.experimentalData.W[self.experimentalData.W == 0] = 1e-3
+                self.experimentalData.W = xp.array(self.experimentalData.W)
+
+                # todo check if it is right
+                if self.params.fftshiftSwitch:
+                    self.experimentalData.ptychogram = xp.fft.ifftshift(
+                        self.experimentalData.ptychogram, axes=(-1, -2)
+                    )
+                    self.experimentalData.W = xp.fft.ifftshift(
+                        self.experimentalData.W, axes=(-1, -2)
+                    )
+
+                # set position order
+                self.setPositionOrder()
+
+                for positionLoop, positionIndex in enumerate(self.positionIndices):
+                    ### patch1 ###
+                    # get object patch1
+                    row1, col1 = self.reconstruction.positions[positionIndex]
+                    sy = slice(row1, row1 + self.reconstruction.Np)
+                    sx = slice(col1, col1 + self.reconstruction.Np)
+                    # note that object patch has size of probe array
+                    objectPatch = self.reconstruction.object[..., sy, sx].copy()
+
+                    # make exit surface wave
+                    self.reconstruction.esw = objectPatch * self.reconstruction.probe
+
+                    # propagate to camera, intensityProjection, propagate back to object
+                    self.intensityProjection(positionIndex)
+
+                    # difference term1
+                    DELTA = self.reconstruction.eswUpdate - self.reconstruction.esw
+
+                    # object update
+                    self.reconstruction.object[..., sy, sx] = self.objectPatchUpdate(
+                        objectPatch, DELTA
+                    )
+
+                    # probe update
+                    self.reconstruction.probe = self.probeUpdate(objectPatch, DELTA)
+
+                # get error metric
+                self.getErrorMetrics()
+                # remove error from error history
+                errorTemp[k] = self.reconstruction.error[-1]
+                self.reconstruction.error = np.delete(self.reconstruction.error, -1)
+
+                # apply Constraints
+                self.applyConstraints(loop)
+                # update buffer
+                probeBuffer[k] = self.reconstruction.probe
+                objectBuffer[k] = self.reconstruction.object
+
+            if errorTemp[1] < errorTemp[0]:
+                dtheta = theta[1] - theta[0]
+                self.reconstruction.theta = theta[1]
+                self.reconstruction.probe = probeBuffer[1]
+                self.reconstruction.object = objectBuffer[1]
+                self.reconstruction.error = np.append(
+                    self.reconstruction.error, errorTemp[1]
+                )
+            else:
+                dtheta = 0
+                self.reconstruction.theta = theta[0]
+                self.reconstruction.probe = probeBuffer[0]
+                self.reconstruction.object = objectBuffer[0]
+                self.reconstruction.error = np.append(
+                    self.reconstruction.error, errorTemp[0]
+                )
+
+            self.reconstruction.thetaMomentum = (
+                self.feedback * dtheta
+                + self.aPIEfriction * self.reconstruction.thetaMomentum
+            )
+            # print updated theta
+            self.pbar.set_description(
+                "aPIE: update a=%.3f deg (search radius=%.3f deg, thetaMomentum=%.3f deg)"
+                % (
+                    self.reconstruction.theta,
+                    thetaSearchRadiusList[loop],
+                    self.reconstruction.thetaMomentum,
+                )
+            )
+
+            # show reconstruction
+            if loop == 0:
+                figure, ax = plt.subplots(
+                    1, 1, num=777, squeeze=True, clear=True, figsize=(5, 5)
+                )
+                ax.set_title("Estimated angle")
+                ax.set_xlabel("iteration")
+                ax.set_ylabel("estimated theta [deg]")
+                ax.set_xscale("symlog")
+                line = plt.plot(0, self.reconstruction.theta, "o-")[0]
+                plt.tight_layout()
+                plt.show(block=False)
+
+            elif np.mod(loop, self.monitor.figureUpdateFrequency) == 0:
+                idx = np.linspace(
+                    0,
+                    np.log10(len(self.reconstruction.thetaHistory) - 1),
+                    np.minimum(len(self.reconstruction.thetaHistory), 100),
+                )
+                idx = np.rint(10**idx).astype("int")
+
+                line.set_xdata(idx)
+                line.set_ydata(np.array(self.reconstruction.thetaHistory)[idx])
+                ax.set_xlim(0, np.max(idx))
+                ax.set_ylim(
+                    min(self.reconstruction.thetaHistory),
+                    max(self.reconstruction.thetaHistory),
+                )
+
+                figure.canvas.draw()
+                figure.canvas.flush_events()
+
+            self.showReconstruction(loop)
+
+        if self.params.gpuFlag:
+            self.logger.info("switch to cpu")
+            self._move_data_to_cpu()
+            self.params.gpuFlag = 0
+
     def objectPatchUpdate(self, objectPatch: np.ndarray, DELTA: np.ndarray):
         """
         Todo add docstring
