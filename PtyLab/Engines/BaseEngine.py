@@ -1437,6 +1437,7 @@ class BaseEngine(object):
                 )
 
                 self.reconstruction.encoder_corrected = new_encoder
+                self.logger.info(f"Average update size: {abs(self.D).mean():.2f} pixels")
 
     def applyConstraints(self, loop):
         """
