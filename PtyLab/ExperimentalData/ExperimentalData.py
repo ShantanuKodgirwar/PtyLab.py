@@ -154,6 +154,25 @@ class ExperimentalData:
         self.ptychogram = self.ptychogram[..., startx: startx + size, startx: startx + size]
         # self._setData()
 
+    def binData(self, binning):
+        '''
+        :param binning: Binning parameter (int, e.g. 2)
+        :return:
+        '''
+        Ndp = self.ptychogram.shape[0]
+        Ny = self.ptychogram.shape[1]
+        Nx = self.ptychogram.shape[2]
+
+        ptychogram_temp = np.copy(self.ptychogram)
+        self.ptychogram = np.zeros((Ndp, Ny // binning, Nx // binning))
+
+        # Loop through all dp
+        for i in range(Ndp):
+            temp = ptychogram_temp[i]
+            reshaped_temp = temp.reshape(Ny // binning, binning, Nx // binning, binning)
+            temp_binning = reshaped_temp.mean(axis=(1, 3))
+            self.ptychogram[i] = np.copy(temp_binning)
+
     def setOrientation(self, orientation, force_contiguous=True):
         """
         Sets the correct orientation. This function follows the ptypy convention.
@@ -168,27 +187,27 @@ class ExperimentalData:
             return
         if orientation == 1:
             # Invert column
-            self.ptychogram = np.fliplr(self.ptychogram)
+            self.ptychogram = np.flip(self.ptychogram, axis=-1)
         elif orientation == 2:
             # Invert rows
-            self.ptychogram = np.flipud(self.ptychogram)
+            self.ptychogram = np.flip(self.ptychogram, axis=-2)
         elif orientation == 3:
             # invert columns and rows
-            self.ptychogram = np.fliplr(self.ptychogram)
-            self.ptychogram = np.flipud(self.ptychogram)
+            self.ptychogram = np.flip(self.ptychogram, axis=-1)
+            self.ptychogram = np.flip(self.ptychogram, axis=-2)
         elif orientation == 4:
             # Transpose
             self.ptychogram = np.transpose(self.ptychogram, (0, 2, 1))
         elif orientation == 5:
             self.ptychogram = np.transpose(self.ptychogram, (0, 2, 1))
-            self.ptychogram = np.fliplr(self.ptychogram)
+            self.ptychogram = np.flip(self.ptychogram, axis=-1)
         elif orientation == 6:
             self.ptychogram = np.transpose(self.ptychogram, (0, 2, 1))
-            self.ptychogram = np.flipud(self.ptychogram)
+            self.ptychogram = np.flip(self.ptychogram, axis=-2)
         elif orientation == 7:
             self.ptychogram = np.transpose(self.ptychogram, (0, 2, 1))
-            self.ptychogram = np.fliplr(self.ptychogram)
-            self.ptychogram = np.flipud(self.ptychogram)
+            self.ptychogram = np.flip(self.ptychogram, axis=-1)
+            self.ptychogram = np.flip(self.ptychogram, axis=-2)
 
         else:
             raise ValueError(f"Orientation {orientation} is not implemented")

@@ -92,6 +92,7 @@ class Reconstruction(object):
             "purityProbe",
             "purityObject",
             "reference",
+            "intensity_mask"
         ]
 
     # @property
@@ -189,16 +190,17 @@ class Reconstruction(object):
                 )
 
         # set object pixel numbers
-        self.No = (
-            self.Np * 2**2
-        )  # unimportant but leave it here as it's required for self.positions
-        # we need space for the probe as well, on both sides that would be half the probe
-        range_pixels = np.max(self.positions, axis=0) - np.min(self.positions, axis=0)
-        # print(range_pixels)
-        range_pixels = np.max(range_pixels) + self.Np * 2
-        if range_pixels % 2 == 1:
-            range_pixels += 1
-        self.No = np.max([self.Np, range_pixels])
+        if not hasattr(self, 'No'):
+            self.No = (
+                self.Np * 2**2
+            )  # unimportant but leave it here as it's required for self.positions
+            # we need space for the probe as well, on both sides that would be half the probe
+            range_pixels = np.max(self.positions, axis=0) - np.min(self.positions, axis=0)
+            # print(range_pixels)
+            range_pixels = np.max(range_pixels) + self.Np * 2
+            if range_pixels % 2 == 1:
+                range_pixels += 1
+            self.No = np.max([self.Np, range_pixels])
 
     def make_alignment_plot(self, saveit=False):
         import time
@@ -319,6 +321,7 @@ class Reconstruction(object):
         # beam and object purity (# default initial value for plots.)
         self.purityProbe = 1
         self.purityObject = 1
+        self.purityProbeHist = []
 
         self.positions0 = self.positions.copy()
 
@@ -445,7 +448,7 @@ class Reconstruction(object):
                     f'Shape of saved probe cannot be extended to shape of required probe. File: {archive["object"].shape}. Need: {self.shape_O}'
                 )
 
-    def load_probe(self, filename, expand_npsm=False):
+    def load_probe(self, filename, expand_npsm=False, center_phase=False):
         """
         Load the probe from a previous reconstruction.
 
@@ -476,6 +479,17 @@ class Reconstruction(object):
                 raise RuntimeError(
                     f'Shape of saved probe cannot be extended to shape of required probe. File: {archive["probe"].shape}. Need: {self.shape_P}'
                 )
+        if center_phase:
+            self._center_probe_angle()
+
+    def _center_probe_angle(self):
+        """ Center the angle of propagation for the probe. """
+        from skimage.registration import phase_cross_correlation
+        from scipy.ndimage import fourier_shift
+        p0 = np.squeeze(self.probe)[0]
+        shift = phase_cross_correlation(p0, 0 * p0 + 1, normalization=None, space='fourier')[0]
+        phexp = np.fft.fftshift(fourier_shift(0 * p0 + 1j, -shift / 2))
+        self.probe *= phexp
 
     def load(self, filename):
         """Load the results given by saveResults."""
@@ -705,6 +719,7 @@ class Reconstruction(object):
     def DoF(self):
         """expected Depth of field"""
         DoF = self.wavelength / self.NAd**2
+        # self.Dof2 = 5.2 *self.dxp**2 /self.wavelength
         return DoF
 
     def _move_data_to_cpu(self):
