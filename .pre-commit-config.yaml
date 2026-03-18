@@ -1,16 +1,5 @@
 repos:
-  - repo: https://github.com/python-poetry/poetry
-    rev: '1.8.3'  # Use your Poetry version
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: '0.10.11'
     hooks:
-      - id: poetry-check
-      - id: poetry-export
-        args: [
-          "-f",
-          "requirements.txt",
-          "-o",
-          "requirements.txt",
-          "--extras",
-          "dev",
-          "--without-hashes",
-        ]
-        verbose: true
+      - id: uv-lock
