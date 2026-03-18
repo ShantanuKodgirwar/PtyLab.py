@@ -57,6 +57,12 @@ uv sync --extra dev,cuda12  # for CUDA 12.x
 uv sync --extra dev,cuda13  # for CUDA 13.x
 ```
 
+You can check if GPU is detected with
+
+```bash
+uv run ptylab check gpu
+```
+
 If you would like to contribute to this package, especially if it involves modifying dependencies, please checkout the [`CONTRIBUTING.md`](CONTRIBUTING.md) file.
 
 ## Citation

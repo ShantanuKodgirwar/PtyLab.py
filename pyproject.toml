@@ -32,6 +32,9 @@ dev = [
 cuda12 = ["cupy-cuda12x"]
 cuda13 = ["cupy-cuda13x"]
 
+[project.scripts]
+ptylab = "PtyLab.utils.cli:main"
+
 [build-system]
 requires = ["uv_build>=0.6.1,<0.11"]
 build-backend = "uv_build"
