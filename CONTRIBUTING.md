@@ -1,70 +1,61 @@
-# Package Management with Poetry
+# Package Management with uv
 
 If you intend to modify existing dependencies or add new ones, please **read this document carefully!**
 
-Our build system, as specified in [`pyproject.toml`](pyproject.toml), is based on [Poetry](https://python-poetry.org/docs/), a Python package manager that includes its own dependency resolver to ensure compatibility among packages. We use `poetry` as a dependency resolver and `conda` as our environment manager.
+Our build system, as specified in [`pyproject.toml`](pyproject.toml), is based on [uv](https://docs.astral.sh/uv/), a fast Python package and project manager. We use `uv` for dependency resolution and virtual environment management.
 
-Installing and familiarizing yourself with Poetry is recommended. The easiest way to install Poetry is via `pipx`. You can install `pipx` and Poetry with an export plugin as follows:
+## Installing uv
+
+Install uv by following the [official instructions](https://docs.astral.sh/uv/getting-started/installation/).
+
+## Setting Up the Development Environment
+
+Assuming you have cloned the package and navigated to the root of the repository:
 
 ```bash
-pip install pipx
-pipx install poetry
-pipx inject poetry poetry-plugin-export
+git clone git@github.com:PtyLab/PtyLab.py.git
+cd PtyLab.py
 ```
 
-Let's create the conda environment, assuming you have cloned the package and have navigated to the root of the repository,
+Install the project and all development dependencies:
 
 ```bash
-conda create --name ptylab_venv python=3.11.5 # or python version satisfying ">=3.9, <3.12"
-conda activate ptylab_venv
-```
-
-Within the environmemt, `ptylab` and its dependencies are installed using `poetry` along with the pre-commit hook,
-
-```bash
-poetry install --all-extras --sync
+uv sync --extra dev
 pre-commit install
 ```
 
-This will utilize `pyproject.toml` and `poetry.lock` file for installing  *pinned dependencies*. 
+This creates a `.venv` virtual environment, installs all packages pinned in `uv.lock`, and sets up pre-commit hooks. Select this environment from your IDE interpreter.
 
-For installing `cupy` for GPU usage, you can specify the optional `gpu-cuda11x` or `gpu-cuda12x` flag based on your [CUDA toolkit version](https://docs.cupy.dev/en/stable/install.html):
+### GPU Support with CuPy
 
-```bash
-poetry install --all-extras --with gpu-cuda11x --sync
-```
-
-If you encounter installation issues, check your CUDA version with:
+Install with the appropriate extra based on your CUDA toolkit version:
 
 ```bash
-nvcc --version
+uv sync --extra dev,cuda12  # for CUDA 12.x
+uv sync --extra dev,cuda13  # for CUDA 13.x
 ```
-
-If this command is not recognized, it's likely that your CUDA `PATH` and `LD_LIBRARY_PATH` are not set properly. For more information, refer to the [CUDA documentation](https://docs.nvidia.com/cuda/cuda-quick-start-guide/index.html).
 
 ## Modifying Packages
 
-To install a new package from [PyPI](https://pypi.org/project/pip/), use:
+To add a new package from [PyPI](https://pypi.org/):
 
 ```bash
-poetry add <package-name>
+uv add <package-name>
 ```
 
-This command will install the new package and resolve existing dependencies to prevent conflicts. Similarly, you can remove a package with:
+This installs the package, resolves all dependencies, and updates both `pyproject.toml` and `uv.lock`. To remove a package:
 
 ```bash
-poetry remove <package-name>
+uv remove <package-name>
 ```
 
-For more information, refer to the [Poetry documentation](https://python-poetry.org/docs/basic-usage/). These commands will modify the `pyproject.toml` and `poetry.lock` files. Ensure that you increment the package version (at least a minor version change) when making such modifications.
-
-> [!WARNING] 
-> When a dependency is changed, the `poetry.lock` file updates. If you try to commit these changes, the pre-commit hook might prevent it, especially if the `requirements.txt` file is modified. In this case, you need to stage both the `requirements.txt` and `poetry.lock` files for the commit to proceed.
-
-If, for any reason, the pre-commit hook does not work, you can manually generate the `requirements.txt` file with:
+To add a package only to a specific extra (e.g., `dev`):
 
 ```bash
-poetry export -f requirements.txt --output requirements.txt --without-hashes --extras dev
+uv add --optional dev <package-name>
 ```
 
-The `requirements.txt` file is essential for users who prefer not to use Poetry.
+For more information, refer to the [uv documentation](https://docs.astral.sh/uv/reference/cli/). Ensure that you increment the package version (at least a minor version change) when modifying dependencies.
+
+> [!WARNING]
+> When a dependency is changed, `uv.lock` updates. The pre-commit `uv-lock` hook will verify the lock file is consistent. Stage `uv.lock` along with any `pyproject.toml` changes for the commit to proceed.

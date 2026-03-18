@@ -20,27 +20,41 @@ To install the package from source,
 pip install git+https://github.com/PtyLab/PtyLab.py.git
 ```
 
-This package uses `cupy` to utilize GPU for faster reconstruction. Please check their [instructions](https://docs.cupy.dev/en/stable/install.html) for installing this dependency.
+This package uses `cupy` to utilize GPU for faster reconstruction. To enable GPU support,
+install the package with the appropriate CUDA extra:
+
+```bash
+# For CUDA 12.x
+pip install "ptylab[cuda12] @ git+https://github.com/PtyLab/PtyLab.py.git"
+
+# For CUDA 13.x
+pip install "ptylab[cuda13] @ git+https://github.com/PtyLab/PtyLab.py.git"
+```
+
+Also check the [CuPy installation instructions](https://docs.cupy.dev/en/stable/install.html) for further details.
 
 ### Development
- 
-Please clone this repository and navigate to the root folder
+
+Clone this repository and navigate to the root folder:
+
 ```bash
 git clone git@github.com:PtyLab/PtyLab.py.git
 cd PtyLab.py
 ```
 
-Inside a virtual environment (preferably with conda), please install `ptylab` and its dependencies from the pinned versions specified under `requirements.txt`:
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/) if you have not already, then install `ptylab` and its development dependencies:
+
 ```bash
-conda create --name ptylab_venv python=3.11.5 # or python version satisfying ">=3.9, <3.12"
-conda activate ptylab_venv
-pip install -e . -r requirements.txt
+uv sync --extra dev
 ```
 
-To use the GPU, `cupy` can be additionally installed in this environment.
+This creates a `.venv` virtual environment in the project root and installs all pinned dependencies from `uv.lock`. Select this environment from your IDE.
+
+To use the GPU, install with the appropriate CUDA extra instead:
 
 ```bash
-conda install -c conda-forge cupy
+uv sync --extra dev,cuda12  # for CUDA 12.x
+uv sync --extra dev,cuda13  # for CUDA 13.x
 ```
 
 If you would like to contribute to this package, especially if it involves modifying dependencies, please checkout the [`CONTRIBUTING.md`](CONTRIBUTING.md) file.
