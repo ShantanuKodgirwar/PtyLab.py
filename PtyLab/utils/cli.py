@@ -16,11 +16,16 @@ def cmd_check_gpu():
             name = props["name"].decode()
             mem_gb = props["totalGlobalMem"] / 1024**3
             print(f"  [{i}] {name}  ({mem_gb:.1f} GB)")
+
+        if cp.is_available():
+            print("cupy GPU: OK")
+        else:
+            print("cupy is installed but GPU is not available.")
+            sys.exit(1)
     except ImportError:
         print(
-            "cupy is not installed. Install with:\n"
-            "  pip install ptylab[cuda12]   # for CUDA 12.x\n"
-            "  pip install ptylab[cuda13]   # for CUDA 13.x"
+            "cupy is not installed. If you are using a GPU, please check"
+            " the readme for the appropriate cupy flag for your CUDA version."
         )
         sys.exit(1)
     except Exception as e:
