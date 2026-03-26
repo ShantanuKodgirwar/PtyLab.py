@@ -14,14 +14,17 @@ To explore more use cases of PtyLab, check the [example_scripts](example_scripts
 
 ## Installation
 
-To install the package from source,
+To install the package from source within your virtual environment:
 
 ```bash
 pip install git+https://github.com/PtyLab/PtyLab.py.git
 ```
 
-This package uses `cupy` to utilize GPU for faster reconstruction. To enable GPU support,
-install the package with the appropriate CUDA extra:
+> [!NOTE]  
+> Just as a tip, to install the package very fast, we recommend using [uv](https://docs.astral.sh/uv/getting-started/installation/) and simply doing `uv pip install git+https://github.com/PtyLab/PtyLab.py.git`
+
+
+This package uses `cupy` to utilize GPU for faster reconstruction. To enable GPU support, install the package with the appropriate CUDA extra:
 
 ```bash
 # For CUDA 12.x
@@ -31,7 +34,7 @@ pip install "ptylab[cuda12] @ git+https://github.com/PtyLab/PtyLab.py.git"
 pip install "ptylab[cuda13] @ git+https://github.com/PtyLab/PtyLab.py.git"
 ```
 
-Also check the [CuPy installation instructions](https://docs.cupy.dev/en/stable/install.html) for further details.
+To check if GPU is being used, please do `ptylab check gpu` within your environment.
 
 ### Development
 
@@ -57,7 +60,7 @@ uv sync --extra dev,cuda12  # for CUDA 12.x
 uv sync --extra dev,cuda13  # for CUDA 13.x
 ```
 
-You can check if GPU is detected with
+GPU can be checked with
 
 ```bash
 uv run ptylab check gpu
