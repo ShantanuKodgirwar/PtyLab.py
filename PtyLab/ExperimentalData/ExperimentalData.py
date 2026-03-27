@@ -98,6 +98,22 @@ class ExperimentalData:
         """
         import os
 
+        if str(filename) == "test:nodata":
+            self.filename = filename
+            # Set minimal stub data so the object is usable without a file
+            self.ptychogram = np.zeros((1, 16, 16), dtype=np.float32)
+            self.encoder = np.zeros((1, 2), dtype=np.float64)
+            self.wavelength = 500e-9
+            self.dxd = 6.5e-6
+            self.zo = 0.1
+            # optional fields
+            self.entrancePupilDiameter = None
+            self.spectralDensity = None
+            self.theta = None
+            self.emptyBeam = None
+            self._setData()
+            return
+
         if not os.path.exists(filename) and str(filename).startswith("example:"):
             self.filename = filename
             from PtyLab.io.readExample import examplePath
