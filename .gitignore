@@ -7,3 +7,6 @@
 logs_tensorboard
 *.hdf5
 *.lock
+.python-version
+.DS_Store
+.idea
