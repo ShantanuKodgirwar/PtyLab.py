@@ -20,11 +20,3 @@ def test_change_optimizable(engine):
     optimizable2 = Reconstruction(experimentalData, Params())
     BR.changeOptimizable(optimizable2)
     assert BR.reconstruction is optimizable2
-
-
-def test_set_position_order(engine):
-    pass
-
-
-def test_get_error_metrics(engine):
-    pass
