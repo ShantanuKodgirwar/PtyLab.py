@@ -1,5 +1,6 @@
 import pytest
 import numpy as np
+pytest.importorskip("tensorflow")
 from PtyLab.Monitor.TensorboardMonitor import TensorboardMonitor
 
 imageio = pytest.importorskip("imageio")
