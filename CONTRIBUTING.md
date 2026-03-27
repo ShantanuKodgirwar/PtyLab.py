@@ -20,7 +20,7 @@ cd PtyLab.py
 Install the project and all development dependencies:
 
 ```bash
-uv sync --extra dev
+uv sync --extra dev,tests
 pre-commit install
 ```
 
@@ -31,9 +31,19 @@ This creates a `.venv` virtual environment, installs all packages pinned in `uv.
 Install with the appropriate extra based on your CUDA toolkit version:
 
 ```bash
-uv sync --extra dev,cuda12  # for CUDA 12.x
-uv sync --extra dev,cuda13  # for CUDA 13.x
+uv sync --extra dev,tests,cuda12  # for CUDA 12.x
+uv sync --extra dev,tests,cuda13  # for CUDA 13.x
 ```
+
+## Running Tests
+
+If adding new functionalities, also add a corresponding test for it and run all the tests:
+
+```bash
+uv run pytest tests
+```
+
+Tests are also run automatically in CI on every push and pull request to `main` (Python 3.12 and 3.13).
 
 ## Modifying Packages
 
