@@ -21,10 +21,9 @@ Install the project and all development dependencies:
 
 ```bash
 uv sync --extra dev,tests
-pre-commit install
 ```
 
-This creates a `.venv` virtual environment, installs all packages pinned in `uv.lock`, and sets up pre-commit hooks. Select this environment from your IDE interpreter.
+This creates a `.venv` virtual environment and installs all packages. Select this environment from your IDE interpreter.
 
 ### GPU Support with CuPy
 
@@ -66,6 +65,3 @@ uv add --optional dev <package-name>
 ```
 
 For more information, refer to the [uv documentation](https://docs.astral.sh/uv/reference/cli/). Ensure that you increment the package version (at least a minor version change) when modifying dependencies.
-
-> [!WARNING]
-> When a dependency is changed, `uv.lock` updates. The pre-commit `uv-lock` hook will verify the lock file is consistent. Stage `uv.lock` along with any `pyproject.toml` changes for the commit to proceed.
