@@ -27,9 +27,6 @@ dependencies = [
 dev = [
     "black~=23.7",
     "ipykernel~=6.25",
-    "pre-commit~=4.0",
-]
-tests = [
     "pytest~=9.0",
     "imageio~=2.0",
 ]

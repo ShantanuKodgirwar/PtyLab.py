@@ -72,12 +72,7 @@ and check if GPU is detected with `uv run ptylab check gpu`.
 
 #### Contributing
 
-If any new changes are made, add a new test if necessary and run the test suite. Start by installing the optional dep. with `tests` flag:
-
-```bash
-uv sync --extra dev,tests # along with a GPU flag if required
-```
-and then
+If any new changes are made, add a new test if necessary and run the test suite.
 
 ```bash
 uv run pytest tests
