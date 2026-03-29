@@ -4,6 +4,13 @@
 
 PtyLab is an inverse modeling toolbox for Conventional (CP) and Fourier (FP) ptychography in a unified framework. For more information please check the [paper](https://opg.optica.org/oe/fulltext.cfm?uri=oe-31-9-13763&id=529026).
 
+## Key Features
+
+- **Classic reconstruction engines** -- ePIE, mPIE, mqNewton 
+- **Advanced corrections** -- position correction (pcPIE), defocus estimation (zPIE), orthogonal probe relaxation (OPR), TV autofocusing, mixed-state probes, and multislice objects
+- **Multiple propagators** -- Fraunhofer, Fresnel, Angular Spectrum (ASP), scaled ASP, and polychromatic variants
+- **GPU acceleration** -- Same code runs on CPU and GPU. 
+
 ## Getting started
 
 The simplest way to get started is to check the below demo in Google Colab.
@@ -52,7 +59,7 @@ Install [uv](https://docs.astral.sh/uv/getting-started/installation/) if you hav
 uv sync --extra dev
 ```
 
-This creates a `.venv` virtual environment in the project root and installs all pinned dependencies from `uv.lock`. Select this environment from your IDE.
+This creates a `.venv` virtual environment in the project root. Select this environment from your IDE.
 
 To use the GPU, install with the appropriate CUDA extra instead:
 
@@ -67,7 +74,20 @@ GPU can be checked with
 uv run ptylab check gpu
 ```
 
-If you would like to contribute to this package, especially if it involves modifying dependencies, please checkout the [`CONTRIBUTING.md`](CONTRIBUTING.md) file.
+#### Contributing
+
+Run the test suite by installing the optional `tests` flag:
+
+```bash
+uv sync --extra dev,tests # along with a GPU flag if required
+```
+and then
+
+```bash
+uv run pytest tests
+```
+
+To add or remove a dependency: `uv add <package>` / `uv remove <package>`. Please bump the package version when modifying dependencies.
 
 ## Citation
 
