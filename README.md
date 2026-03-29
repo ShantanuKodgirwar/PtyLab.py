@@ -76,7 +76,7 @@ uv run ptylab check gpu
 
 #### Contributing
 
-Run the test suite by installing the optional `tests` flag:
+If any new changes are made, add a new test if necessary and run the test suite. Start by installing the optional dep. with `tests` flag:
 
 ```bash
 uv sync --extra dev,tests # along with a GPU flag if required
@@ -87,7 +87,7 @@ and then
 uv run pytest tests
 ```
 
-To add or remove a dependency: `uv add <package>` / `uv remove <package>`. Please bump the package version when modifying dependencies.
+Note that CI will also do this at every PR. Please bump the package version when modifying dependencies.
 
 ## Citation
 
