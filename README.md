@@ -1,4 +1,5 @@
 # PtyLab.py
+## Conventional & Fourier Ptychography Toolbox
 ![Python 3.10+](https://img.shields.io/badge/python-3.10+-green.svg)
 ![Tests](https://github.com/ShantanuKodgirwar/PtyLabX/actions/workflows/test.yml/badge.svg)
 
