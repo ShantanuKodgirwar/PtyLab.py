@@ -1,5 +1,6 @@
 site_name: PtyLab.py
 site_description: Cross-platform, open-source inverse modeling toolbox for conventional and Fourier ptychography
+site_url: https://ptylab.github.io/PtyLab.py/
 repo_url: https://github.com/PtyLab/PtyLab.py
 repo_name: PtyLab/PtyLab.py
 dev_addr: '127.0.0.1:8000'
