@@ -2,6 +2,8 @@
 ![Python 3.10+](https://img.shields.io/badge/python-3.10+-green.svg)
 ![Tests](https://github.com/ShantanuKodgirwar/PtyLabX/actions/workflows/test.yml/badge.svg)
 
+[**Installation**](#installation) | [**Development and Contribution**](#development) | [**Getting Started**](#getting-started) | [**PtyLab Documentation**](https://ptylab.github.io/PtyLab.py/)
+
 PtyLab is an inverse modeling toolbox for Conventional (CP) and Fourier (FP) ptychography in a unified framework. For more information please check the [paper](https://opg.optica.org/oe/fulltext.cfm?uri=oe-31-9-13763&id=529026).
 
 ## Key Features
