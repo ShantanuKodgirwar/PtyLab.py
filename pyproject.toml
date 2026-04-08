@@ -33,6 +33,11 @@ dev = [
 cuda12 = ["cupy-cuda12x"]
 cuda13 = ["cupy-cuda13x"]
 tensorflow = ["tensorflow~=2.14"]
+docs = [
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.7.6",
+    "mkdocs-jupyter>=0.24",
+]
 
 [project.scripts]
 ptylab = "PtyLab.utils.cli:main"
