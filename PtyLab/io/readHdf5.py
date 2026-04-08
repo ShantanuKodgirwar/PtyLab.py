@@ -96,7 +96,7 @@ def getOrientation(filename):
     with h5py.File(str(filename), "r") as archive:
         if "orientation" in archive.keys():
             orientation = np.array(archive["orientation"]).ravel()[0].astype(int)
-    return int(orientation)
+    return int(orientation) if orientation is not None else None
 
 
 def checkDataFields(filename, requiredFields):
