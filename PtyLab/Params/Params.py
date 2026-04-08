@@ -179,6 +179,16 @@ class Params(object):
         self.SHG_probe = False
 
     @property
+    def propagator(self):
+        """Alias for propagatorType."""
+        return self.propagatorType
+
+    @propagator.setter
+    def propagator(self, value):
+        """Alias for propagatorType."""
+        self.propagatorType = value
+
+    @property
     def gpuSwitch(self):
         """Get the GPU switch state."""
         return self._gpuSwitch

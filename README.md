@@ -1,7 +1,26 @@
-# PtyLab.py
-![Python 3.9+](https://img.shields.io/badge/python-3.9+-green.svg)
+# PtyLab.py: Unified Ptychography Toolbox
+![Python 3.10+](https://img.shields.io/badge/python-3.10+-green.svg)
+![Tests](https://github.com/ShantanuKodgirwar/PtyLabX/actions/workflows/test.yml/badge.svg)
 
 PtyLab is an inverse modeling toolbox for Conventional (CP) and Fourier (FP) ptychography in a unified framework. For more information please check the [paper](https://opg.optica.org/oe/fulltext.cfm?uri=oe-31-9-13763&id=529026).
+
+## Key Features
+
+- **Classic reconstruction engines**: ePIE, mPIE, mqNewton, 
+- **Advanced corrections**: multi-slice, multi-wavelength, position correction (pcPIE), defocus correction (zPIE), angle correction (aPIE), orthogonal probe relaxation (OPR), mixed-state object and probe.
+- **Multiple propagators**: Fraunhofer, Fresnel, Angular Spectrum (ASP), scaled ASP, and polychromatic variants
+- **GPU acceleration**: Same code runs on CPU and GPU. 
+
+The reconstructed output is a 6D array of shape `(nlambda, nosm, npsm, nslice, No, No)`:
+
+| Dim | Meaning |
+|-----|---------|
+| `nlambda` | wavelengths |
+| `nosm` | object state mixture |
+| `npsm` | probe state mixture |
+| `nslice` | depth slices |
+| `No` | output frame size |
+
 
 ## Getting started
 
@@ -51,7 +70,7 @@ Install [uv](https://docs.astral.sh/uv/getting-started/installation/) if you hav
 uv sync --extra dev
 ```
 
-This creates a `.venv` virtual environment in the project root and installs all pinned dependencies from `uv.lock`. Select this environment from your IDE.
+This creates a `.venv` virtual environment in the project root. Select this environment from your IDE.
 
 To use the GPU, install with the appropriate CUDA extra instead:
 
@@ -60,13 +79,17 @@ uv sync --extra dev,cuda12  # for CUDA 12.x
 uv sync --extra dev,cuda13  # for CUDA 13.x
 ```
 
-GPU can be checked with
+and check if GPU is detected with `uv run ptylab check gpu`.
+
+#### Contributing
+
+If any new changes are made, add a new test if necessary and run the test suite.
 
 ```bash
-uv run ptylab check gpu
+uv run pytest tests
 ```
 
-If you would like to contribute to this package, especially if it involves modifying dependencies, please checkout the [`CONTRIBUTING.md`](CONTRIBUTING.md) file.
+Note that CI will also do this at every PR. Please bump the package version when modifying dependencies.
 
 ## Citation
 

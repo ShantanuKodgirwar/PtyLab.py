@@ -1,15 +1,15 @@
 [project]
 name = "ptylab"
-version = "0.2.2"
+version = "0.2.3"
 description = "A cross-platform, open-source inverse modeling toolbox for conventional and Fourier ptychography"
 authors = [
     { name = "Lars Loetgering", email = "lars.loetgering@fulbrightmail.org" },
     { name = "PtyLab Team" },
 ]
 readme = "README.md"
-requires-python = ">=3.9, <3.13"
+requires-python = ">=3.10, <3.14"
 dependencies = [
-    "numpy>=1.22",
+    "numpy~=2.0",
     "matplotlib~=3.7",
     "h5py~=3.9",
     "scipy~=1.11",
@@ -20,13 +20,15 @@ dependencies = [
     "tables~=3.8",
     "bokeh~=3.2",
     "PyQt5~=5.15",
+    "ipython~=8.18",
 ]
 
 [project.optional-dependencies]
 dev = [
     "black~=23.7",
     "ipykernel~=6.25",
-    "pre-commit~=4.0",
+    "pytest~=9.0",
+    "imageio~=2.0",
 ]
 cuda12 = ["cupy-cuda12x"]
 cuda13 = ["cupy-cuda13x"]
@@ -34,6 +36,9 @@ tensorflow = ["tensorflow~=2.14"]
 
 [project.scripts]
 ptylab = "PtyLab.utils.cli:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
 
 [build-system]
 requires = ["uv_build>=0.6.1,<0.11"]
