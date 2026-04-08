@@ -1,5 +1,8 @@
 # PtyLab.py
 
+!!! warning "Work in Progress"
+    This documentation is under active development. Some details may be incomplete or vary from the current state of the codebase.
+
 PtyLab.py is an open-source inverse modeling toolbox for **Conventional Ptychographic Microscopy (CPM)** and **Fourier Ptychographic Microscopy (FPM)** in a unified framework. It supports a wide range of reconstruction engines, advanced correction algorithms, and transparent GPU acceleration.
 
 For the original publication, see: [PtyLab.m/py/jl: a cross-platform, open-source inverse modeling toolbox for conventional and Fourier ptychography](https://opg.optica.org/oe/fulltext.cfm?uri=oe-31-9-13763&id=529026).
