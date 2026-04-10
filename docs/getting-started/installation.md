@@ -10,16 +10,10 @@ PtyLab.py requires **Python 3.10–3.13** and is distributed via PyPI and GitHub
     pip install git+https://github.com/PtyLab/PtyLab.py.git
     ```
 
-=== "CUDA 12"
+=== "GPU"
 
     ```bash
-    pip install "ptylab[cuda12] @ git+https://github.com/PtyLab/PtyLab.py.git"
-    ```
-
-=== "CUDA 13"
-
-    ```bash
-    pip install "ptylab[cuda13] @ git+https://github.com/PtyLab/PtyLab.py.git"
+    pip install "ptylab[gpu] @ git+https://github.com/PtyLab/PtyLab.py.git"
     ```
 
 !!! tip
@@ -58,8 +52,7 @@ source .venv/bin/activate
 For GPU support during development:
 
 ```bash
-uv sync --extra dev,cuda12   # for CUDA 12.x
-uv sync --extra dev,cuda13   # for CUDA 13.x
+uv sync --extra dev,gpu
 ```
 
 ## Running tests

@@ -31,17 +31,9 @@ checkGPU()
 
 GPU acceleration requires installing PtyLab.py with a CUDA extra. See [Installation](../getting-started/installation.md) for the full instructions.
 
-=== "CUDA 12"
-
-    ```bash
-    pip install "ptylab[cuda12] @ git+https://github.com/PtyLab/PtyLab.py.git"
-    ```
-
-=== "CUDA 13"
-
-    ```bash
-    pip install "ptylab[cuda13] @ git+https://github.com/PtyLab/PtyLab.py.git"
-    ```
+```bash
+pip install "ptylab[gpu] @ git+https://github.com/PtyLab/PtyLab.py.git"
+```
 
 ## Memory optimization
 
