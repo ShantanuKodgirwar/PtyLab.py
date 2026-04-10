@@ -55,6 +55,9 @@ nav:
     - "06 – CPM Interferometric Intensity": tutorials/tutorial_interferometricIntensityConstraint.ipynb
     - "07 – FPM": tutorials/tutorial_FPM.ipynb
 
+extra_css:
+  - stylesheets/extra.css
+
 markdown_extensions:
   - admonition
   - pymdownx.details
