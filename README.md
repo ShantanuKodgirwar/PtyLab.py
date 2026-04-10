@@ -46,53 +46,41 @@ pip install git+https://github.com/PtyLab/PtyLab.py.git
 > Just as a tip, to install the package very fast, we recommend using [uv](https://docs.astral.sh/uv/getting-started/installation/) and simply doing `uv pip install git+https://github.com/PtyLab/PtyLab.py.git`
 
 
-This package uses `cupy` to utilize GPU for faster reconstruction. To enable GPU support, install the package with the appropriate CUDA extra:
+This package uses `cupy` to utilize GPU for faster reconstruction. To enable GPU support:
 
 ```bash
-# For CUDA 12.x
-pip install "ptylab[cuda12] @ git+https://github.com/PtyLab/PtyLab.py.git"
-
-# For CUDA 13.x
-pip install "ptylab[cuda13] @ git+https://github.com/PtyLab/PtyLab.py.git"
+pip install "ptylab[gpu] @ git+https://github.com/PtyLab/PtyLab.py.git"
 ```
 
 To check if GPU is being used, please do `ptylab check gpu` within your environment.
 
 ### Development
 
-Clone this repository and navigate to the root folder:
+Clone this repository, navigate to the root folder and install dev. dependencies with [uv](https://docs.astral.sh/uv/getting-started/installation/):
 
 ```bash
 git clone git@github.com:PtyLab/PtyLab.py.git
 cd PtyLab.py
-```
-
-Install [uv](https://docs.astral.sh/uv/getting-started/installation/) if you have not already, then install `ptylab` and its development dependencies:
-
-```bash
 uv sync --extra dev
 ```
 
 This creates a `.venv` virtual environment in the project root. Select this environment from your IDE.
 
-To use the GPU, install with the appropriate CUDA extra instead:
+To use the GPU as well, install with the `gpu` flag:
 
 ```bash
-uv sync --extra dev,cuda12  # for CUDA 12.x
-uv sync --extra dev,cuda13  # for CUDA 13.x
+uv sync --extra dev,gpu
 ```
 
 and check if GPU is detected with `uv run ptylab check gpu`.
 
-#### Contributing
-
-If any new changes are made, add a new test if necessary and run the test suite.
+If any new changes are made, add a new test if necessary and run the full test suite.
 
 ```bash
 uv run pytest tests
 ```
 
-Note that CI will also do this at every PR. Please bump the package version when modifying dependencies.
+Note that CI will also do this at every PR. Please bump the package version when modifying dependencies. 
 
 ## Citation
 

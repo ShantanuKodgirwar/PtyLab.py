@@ -30,8 +30,7 @@ dev = [
     "pytest~=9.0",
     "imageio~=2.0",
 ]
-cuda12 = ["cupy-cuda12x"]
-cuda13 = ["cupy-cuda13x"]
+gpu = ["cupy-cuda12x[ctk]"]
 tensorflow = ["tensorflow~=2.14"]
 docs = [
     "mkdocs>=1.6.1",
