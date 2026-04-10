@@ -96,7 +96,8 @@ def getOrientation(filename):
     orientation = None
     with h5py.File(str(filename), "r") as archive:
         if "orientation" in archive.keys():
-            orientation = int(np.array(archive["orientation"]).ravel()[0])
+            raw_value = np.array(archive["orientation"]).ravel()[0]
+            orientation = scalify(raw_value)
     return orientation
 
 
