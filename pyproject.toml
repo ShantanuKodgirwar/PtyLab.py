@@ -21,6 +21,7 @@ dependencies = [
     "bokeh~=3.2",
     "PyQt5~=5.15",
     "ipython~=8.18",
+    "ipywidgets>=8.1.8",
 ]
 
 [project.optional-dependencies]
