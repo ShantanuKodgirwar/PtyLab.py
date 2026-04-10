@@ -120,7 +120,7 @@ def complexPlot(rgb, ax=None, pixelSize=1, axisUnit="pixel"):
     scalar_mappable = mpl.cm.ScalarMappable(norm=norm, cmap=mpl.cm.hsv)
     scalar_mappable.set_array([])
     cbar = plt.colorbar(scalar_mappable, ax=ax, cax=cax, ticks=[-np.pi, 0, np.pi])
-    cbar.ax.set_yticklabels(["$-\pi$", "0", "$\pi$"])
+    cbar.ax.set_yticklabels([r"$-\pi$", "0", r"$\pi$"])
     return im
 
 
