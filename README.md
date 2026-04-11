@@ -3,7 +3,7 @@
 ![Version](https://img.shields.io/badge/version-0.2.5-blue.svg)
 ![Tests](https://github.com/PtyLab/PtyLab.py/actions/workflows/test.yml/badge.svg)
 
-[**Installation**](#installation) | [**Development and Contribution**](#development) | [**Getting Started**](#getting-started) | [**PtyLab Documentation**](https://ptylab.github.io/PtyLab.py/)
+[**Getting Started**](#getting-started) | [**Installation**](#installation) | [**Development**](#development) | [**Documentation**](https://ptylab.github.io/PtyLab.py/)
 
 PtyLab is an inverse modeling toolbox for Conventional (CP) and Fourier (FP) ptychography in a unified framework. For more information please check the [paper](https://opg.optica.org/oe/fulltext.cfm?uri=oe-31-9-13763&id=529026).
 
@@ -32,7 +32,7 @@ The simplest way to get started is to check the below demo in Google Colab.
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/PtyLab/PtyLab.py/blob/main/demo.ipynb)
 ![demo](assets/recon.gif)
 
-To explore more use cases of PtyLab, check the [example_scripts](example_scripts) and [jupyter_tutorials](jupyter_tutorials) directories. However, please install the package first as described in the below sections.
+To explore more use cases of PtyLab, check the [jupyter_tutorials](jupyter_tutorials) first, followed by [example_scripts](example_scripts) for more detailed use cases.
 
 ## Installation
 
@@ -52,7 +52,11 @@ This package uses `cupy` to utilize GPU for faster reconstruction. To enable GPU
 pip install "ptylab[gpu] @ git+https://github.com/PtyLab/PtyLab.py.git"
 ```
 
-To check if GPU is being used, please do `ptylab check gpu` within your environment.
+To check if GPU is being used, please type the below command from within your environment
+
+```bash
+ptylab check gpu
+```
 
 ### Development
 
