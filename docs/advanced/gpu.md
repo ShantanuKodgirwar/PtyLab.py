@@ -2,37 +2,28 @@
 
 PtyLab.py uses [CuPy](https://cupy.dev/) as a drop-in GPU backend for NumPy. The same reconstruction code runs on both CPU and GPU — no changes to your script needed beyond toggling a single parameter.
 
-## Enabling GPU
-
-```python
-params.gpuSwitch = True
-```
-
-Set this **before** calling `easyInitialize` or constructing the engine. The engine will move all arrays to the GPU automatically at the start of reconstruction.
-
-## Verifying GPU availability
-
-From the command line:
-
-```bash
-ptylab check gpu
-```
-
-This prints detected CUDA devices and their memory. If no GPU is found, it warns you and reconstruction will fall back to CPU.
-
-From Python:
-
-```python
-from PtyLab.utils.gpuUtils import checkGPU
-checkGPU()
-```
-
 ## Installation with GPU support
 
 GPU acceleration requires installing PtyLab.py with a CUDA extra. See [Installation](../getting-started/installation.md) for the full instructions.
 
 ```bash
 pip install "ptylab[gpu] @ git+https://github.com/PtyLab/PtyLab.py.git"
+```
+
+## Verifying GPU availability
+
+From the command line (within your environment):
+
+```bash
+ptylab check gpu
+```
+
+## Toggle GPU switch
+
+By default, GPU is automatically detected and used for your reconstructions, however this can be also manually controlled via the following parameter
+
+```bash
+params.gpuSwitch = True
 ```
 
 ## Memory optimization
