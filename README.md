@@ -33,7 +33,7 @@ The simplest way to get started is to check the below demo in Google Colab.
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/PtyLab/PtyLab.py/blob/main/demo.ipynb)
 ![demo](assets/recon.gif)
 
-To explore more use cases of PtyLab, check the [jupyter_tutorials](jupyter_tutorials) first, followed by [example_scripts](example_scripts) for more detailed use cases.
+To explore more use cases of PtyLab, check the [tutorials](https://ptylab.github.io/PtyLab.py/tutorials/) under our documentation page first, followed by more examples cases under the [example_scripts](example_scripts) directory.
 
 ## Installation
 
