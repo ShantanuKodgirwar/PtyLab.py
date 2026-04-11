@@ -25,6 +25,7 @@ theme:
   features:
     - navigation.sections
     - navigation.expand
+    - navigation.indexes
     - navigation.top
     - content.code.copy
     - toc.integrate
@@ -32,21 +33,26 @@ theme:
 nav:
   - Home: index.md
   - Getting Started:
+    - getting-started/index.md
     - Installation: getting-started/installation.md
     - Quick Start: getting-started/quickstart.md
   - CPM Workflow:
+    - cpm/index.md
     - Overview: cpm/overview.md
     - Data Format: cpm/data-format.md
     - Engines: cpm/engines.md
     - Configuration Reference: cpm/configuration.md
   - FPM Workflow:
+    - fpm/index.md
     - Overview: fpm/overview.md
     - LED Calibration: fpm/calibration.md
   - Advanced Topics:
+    - advanced/index.md
     - GPU Acceleration: advanced/gpu.md
     - Multislice: advanced/multislice.md
     - Position Correction: advanced/position-correction.md
   - Tutorials:
+    - tutorials/index.md
     - "01 – CPM Simulation": tutorials/tutorial_CPM_sim.ipynb
     - "02 – CPM Example Data": tutorials/tutorial_CPM.ipynb
     - "03 – CPM Multi-Wavelength": tutorials/tutorial_CPM_multiWavelength.ipynb
