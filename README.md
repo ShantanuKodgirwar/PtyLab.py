@@ -9,10 +9,11 @@ PtyLab is an inverse modeling toolbox for Conventional (CP) and Fourier (FP) pty
 
 ## Key Features
 
-- **Classic reconstruction engines**: ePIE, mPIE, mqNewton, 
-- **Advanced corrections**: multi-slice, multi-wavelength (multiPIE), position correction (pcPIE), defocus correction (zPIE), angle correction (aPIE), orthogonal probe relaxation (OPR), mixed-state object and probe.
-- **Multiple propagators**: Fraunhofer, Fresnel, Angular Spectrum (ASP), scaled ASP, and polychromatic variants
-- **GPU acceleration**: Same code runs on CPU and GPU. 
+- **Classic engines**: ePIE, mPIE, mqNewton, qNewton
+- **Advanced corrections**: position correction (pcPIE), defocus correction (zPIE), angle correction (aPIE), orthogonal probe relaxation (OPR)
+- **Multi-modal**: multi-slice, multi-wavelength, mixed-state object and probe
+- **Multiple propagators**: Fraunhofer, Fresnel, Angular Spectrum (ASP), scaled ASP, polychromatic variants
+- **GPU acceleration**: same code runs on CPU and GPU
 
 The reconstructed output is a 6D array of shape `(nlambda, nosm, npsm, nslice, No, No)`:
 
