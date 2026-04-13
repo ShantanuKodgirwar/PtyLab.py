@@ -1,6 +1,6 @@
 # Installation
 
-PtyLab.py requires **Python 3.10–3.13** and is distributed via PyPI and GitHub.
+PtyLab.py requires **Python 3.10–3.13** and is distributed via GitHub.
 
 ## From GitHub (pip)
 
