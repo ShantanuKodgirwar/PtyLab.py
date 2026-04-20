@@ -1,10 +1,10 @@
 from functools import lru_cache
 
+import numpy as np
 try:
     import cupy as cp
 except ImportError:
-    # print("Cupy unavailable")
-    import numpy as np
+    cp = None
 
 # from PtyLab.Operators.Operators import cache_size
 cache_size = 30
