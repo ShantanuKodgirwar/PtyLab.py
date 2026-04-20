@@ -10,3 +10,4 @@ logs_tensorboard
 .python-version
 .DS_Store
 .idea
+.cache
