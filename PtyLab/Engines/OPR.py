@@ -63,14 +63,15 @@ class OPR(BaseEngine):
         mode_slice = self.OPR_modes
         n_subspace = self.n_subspace
 
-        self.reconstruction.probe_stack = cp.zeros(
-            (1, 1, Nmodes, 1, Np, Np, Nframes), dtype=cp.complex64
+        self.reconstruction.probe_stack = np.zeros(
+            (Nmodes, Np, Np, Nframes), dtype=np.complex64
         )
 
         for i, mode in enumerate(self.OPR_modes):
-            # fill the probe-stack with the inital guess of the probes
-            self.reconstruction.probe_stack[0, 0, i, 0, :, :, :] = cp.repeat(
-                self.reconstruction.probe[0, 0, mode, 0, :, :, cp.newaxis],
+            # fill the probe-stack with the initial guess of the probes
+            initial_probe = asNumpyArray(self.reconstruction.probe[0, 0, mode, 0, :, :])
+            self.reconstruction.probe_stack[i, :, :, :] = np.repeat(
+                initial_probe[:, :, np.newaxis],
                 Nframes,
                 axis=2,
             )
@@ -91,9 +92,9 @@ class OPR(BaseEngine):
                 # note that object patch has size of probe array
                 objectPatch = self.reconstruction.object[..., sy, sx].copy()
 
-                # Get dim reduced probe
-                self.reconstruction.probe[:, :, mode_slice, :, :, :] = (
-                    self.reconstruction.probe_stack[..., positionIndex]
+                # Get dim reduced probe and move to GPU
+                self.reconstruction.probe[0, 0, :, 0, :, :] = cp.array(
+                    self.reconstruction.probe_stack[:, :, :, positionIndex]
                 )
 
                 # make exit surface wave
@@ -120,9 +121,9 @@ class OPR(BaseEngine):
                     objectPatch, DELTA, weight=1
                 )
 
-                # save first, dominant probe mode
-                self.reconstruction.probe_stack[..., positionIndex] = cp.copy(
-                    self.reconstruction.probe[:, :, mode_slice, :, :, :]
+                # save first, dominant probe mode back to CPU
+                self.reconstruction.probe_stack[:, :, :, positionIndex] = asNumpyArray(
+                    self.reconstruction.probe[0, 0, :, 0, :, :]
                 )
 
             # get error metric
@@ -153,15 +154,16 @@ class OPR(BaseEngine):
         """
         nFrames = self.experimentalData.numFrames
         n = self.reconstruction.Np
-        nModes = self.reconstruction.probe_stack.shape[2]
+        nModes = self.reconstruction.probe_stack.shape[0]
         for pos in range(nFrames):
-            probe = self.reconstruction.probe_stack[0, 0, :, 0, :, :, pos]
+            # Move current position probes to GPU
+            probe = cp.array(self.reconstruction.probe_stack[:, :, :, pos])
             probe = probe.reshape(nModes, n * n)
 
             U, s, Vh = self.svd(probe)
 
             modes = (s[:, None] * Vh).reshape(nModes, n, n)
-            self.reconstruction.probe_stack[0, 0, :, 0, :, :, pos] = modes
+            self.reconstruction.probe_stack[:, :, :, pos] = asNumpyArray(modes)
 
     def average(self, arr):
         """
@@ -213,16 +215,14 @@ class OPR(BaseEngine):
         nFrames = self.experimentalData.numFrames
 
         for i, mode in enumerate(self.OPR_modes):
+            # Move only the current mode to GPU
+            mode_gpu = cp.array(probe_stack[i, :, :, :])
+            reshaped_mode = mode_gpu.reshape(n * n, nFrames)
 
             if self.params.OPR_tsvd_type == "randomized":
-                U, s, Vh = self.rsvd(
-                    probe_stack[:, :, i, :, :, :].reshape(n * n, nFrames), n_dim
-                )
+                U, s, Vh = self.rsvd(reshaped_mode, n_dim)
             elif self.params.OPR_tsvd_type == "numpy":
-                U, s, Vh = cp.linalg.svd(
-                    probe_stack[:, :, i, :, :, :].reshape(n * n, nFrames),
-                    full_matrices=False,
-                )
+                U, s, Vh = cp.linalg.svd(reshaped_mode, full_matrices=False)
                 s[n_dim:] = 0
 
             if self.params.OPR_neighbor_constraint:
@@ -231,13 +231,12 @@ class OPR(BaseEngine):
                 for j in range(n_dim):
                     content[j] = self.average(content[j])
 
-                probe_stack[:, :, i, :, :, :] = self.alpha * probe_stack[
-                    :, :, i, :, :, :
-                ] + (1 - self.alpha) * cp.dot(U, content).reshape(n, n, nFrames)
+                res = self.alpha * mode_gpu + (1 - self.alpha) * cp.dot(U, content).reshape(n, n, nFrames)
             else:
                 update = (U @ (s[:, None] * Vh)).reshape(n, n, nFrames)
-                probe_stack[:, :, i, :, :, :] *= self.alpha
-                probe_stack[:, :, i, :, :, :] += (1 - self.alpha) * update
+                res = self.alpha * mode_gpu + (1 - self.alpha) * update
+
+            probe_stack[i, :, :, :] = asNumpyArray(res)
 
         return probe_stack
 
