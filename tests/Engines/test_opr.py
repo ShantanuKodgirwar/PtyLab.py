@@ -4,7 +4,7 @@ import cupy as cp
 from PtyLab.Reconstruction.Reconstruction import Reconstruction
 from PtyLab.ExperimentalData.ExperimentalData import ExperimentalData
 from PtyLab.Params.Params import Params
-from PtyLab.Monitor.Monitor import Monitor
+from PtyLab.Monitor.Monitor import DummyMonitor
 from PtyLab.Engines.OPR import OPR
 
 @pytest.fixture
@@ -21,7 +21,7 @@ def opr_engine():
     params.OPR_modes = np.array([0, 1])
     params.OPR_subspace = 2
 
-    monitor = Monitor()
+    monitor = DummyMonitor()
     optimizable = Reconstruction(experimentalData, params)
 
     # Initialize probe and object for OPR
