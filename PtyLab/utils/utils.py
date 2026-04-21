@@ -160,7 +160,7 @@ def orthogonalizeModes(p, method=None):
             w, V = np.linalg.eig(np.dot(p2D.conj(), np.transpose(p2D)))
             s = np.sqrt(w).real
             U = np.dot(
-                xp.dot(xp.transpose(p2D), V),
+                np.dot(np.transpose(p2D), V),
                 np.linalg.inv(np.diag(s) + 1e-17 * np.eye(len(s))),
             )
             indices = np.flip(np.argsort(s))
