@@ -1632,7 +1632,7 @@ class BaseEngine(object):
                     self.reconstruction.purityProbe = np.sqrt(
                         np.sum(self.normalizedEigenvaluesProbe**2)
                     )
-                    self.reconstruction.purityProbeHist.append(self.reconstruction.purityProbe.get())
+                    self.reconstruction.purityProbeHist.append(float(self.reconstruction.purityProbe))
                     # orthogonolize momentum operator
                     if self.params.momentumAcceleration:
                         # orthogonalize probe Buffer
