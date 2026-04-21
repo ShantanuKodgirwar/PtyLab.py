@@ -11,6 +11,7 @@ except ImportError:
 
 import logging
 import sys
+import warnings
 
 import tqdm
 
@@ -26,7 +27,6 @@ from PtyLab.utils.gpuUtils import asNumpyArray, getArrayModule, isGpuArray
 
 
 class OPR(BaseEngine):
-
     def __init__(
         self,
         reconstruction: Reconstruction,
@@ -221,14 +221,20 @@ class OPR(BaseEngine):
 
             if self.params.OPR_tsvd_type == "randomized":
                 U, s, Vh = self.rsvd(reshaped_mode, n_dim)
-            elif self.params.OPR_tsvd_type == "numpy":
+            elif self.params.OPR_tsvd_type in ("exact", "numpy"):
+                if self.params.OPR_tsvd_type == "numpy":
+                    warnings.warn(
+                        'OPR_tsvd_type="numpy" is deprecated; use "exact" instead.',
+                        DeprecationWarning,
+                        stacklevel=2,
+                    )
                 # Gram matrix approach: avoids cp.linalg.svd on (n²×nFrames) which
                 # overflows CUSOLVER's 32-bit workspace buffer for large Np
-                gram = reshaped_mode.T.conj() @ reshaped_mode       # (nFrames, nFrames)
-                w, V = cp.linalg.eigh(gram)                          # ascending eigenvalues
-                idx = cp.argsort(w)[::-1][:n_dim]                    # top n_dim, descending
-                s = cp.sqrt(cp.maximum(w[idx], 0.0))                 # (n_dim,)
-                Vh = V[:, idx].T.conj()                              # (n_dim, nFrames)
+                gram = reshaped_mode.T.conj() @ reshaped_mode  # (nFrames, nFrames)
+                w, V = cp.linalg.eigh(gram)  # ascending eigenvalues
+                idx = cp.argsort(w)[::-1][:n_dim]  # top n_dim, descending
+                s = cp.sqrt(cp.maximum(w[idx], 0.0))  # (n_dim,)
+                Vh = V[:, idx].T.conj()  # (n_dim, nFrames)
                 U = reshaped_mode @ V[:, idx] / (s[None, :] + 1e-17)  # (n², n_dim)
 
             if self.params.OPR_neighbor_constraint:
@@ -237,7 +243,9 @@ class OPR(BaseEngine):
                 for j in range(n_dim):
                     content[j] = self.average(content[j])
 
-                res = self.alpha * mode_gpu + (1 - self.alpha) * cp.dot(U, content).reshape(n, n, nFrames)
+                res = self.alpha * mode_gpu + (1 - self.alpha) * cp.dot(
+                    U, content
+                ).reshape(n, n, nFrames)
             else:
                 update = (U @ (s[:, None] * Vh)).reshape(n, n, nFrames)
                 res = self.alpha * mode_gpu + (1 - self.alpha) * update
