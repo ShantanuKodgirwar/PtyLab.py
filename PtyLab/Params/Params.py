@@ -172,6 +172,8 @@ class Params(object):
         # truncated SVD to chose, either standard numpy svd or randomized tsvd, which
         # saves some computational time
         self.OPR_tsvd_type = "exact"  # "exact", "randomized", or "numpy" (legacy alias for "exact")
+        self.OPR_spatial_chunk_size = 262144  # spatial pixels per GPU chunk in orthogonalizeProbeStack
+        self.OPR_probe_stack_device = "auto"  # "auto": try GPU then fall back to CPU; "gpu": force GPU; "cpu": force CPU
         # Switch to orthogonolize all incoherent probe modes
         self.OPR_orthogonalize_modes = True
         # If set True only slowly changing probes are allowed
