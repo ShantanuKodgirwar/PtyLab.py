@@ -93,7 +93,7 @@ class OPR(BaseEngine):
                 objectPatch = self.reconstruction.object[..., sy, sx].copy()
 
                 # Get dim reduced probe and move to GPU
-                self.reconstruction.probe[0, 0, :, 0, :, :] = cp.array(
+                self.reconstruction.probe[0, 0, mode_slice, 0, :, :] = cp.array(
                     self.reconstruction.probe_stack[:, :, :, positionIndex]
                 )
 
@@ -123,7 +123,7 @@ class OPR(BaseEngine):
 
                 # save first, dominant probe mode back to CPU
                 self.reconstruction.probe_stack[:, :, :, positionIndex] = asNumpyArray(
-                    self.reconstruction.probe[0, 0, :, 0, :, :]
+                    self.reconstruction.probe[0, 0, mode_slice, 0, :, :]
                 )
 
             # get error metric
