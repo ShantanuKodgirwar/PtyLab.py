@@ -179,7 +179,7 @@ class zPIE(BaseEngine):
                     self.reconstruction.TV_history = []
 
                 self.reconstruction.TV_history.append(
-                    float(merit[len(merit) // 2].get())
+                    float(merit[len(merit) // 2])
                 )
                 if xp is not np:
                     merit = merit.get()
