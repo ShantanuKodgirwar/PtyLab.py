@@ -222,8 +222,14 @@ class OPR(BaseEngine):
             if self.params.OPR_tsvd_type == "randomized":
                 U, s, Vh = self.rsvd(reshaped_mode, n_dim)
             elif self.params.OPR_tsvd_type == "numpy":
-                U, s, Vh = cp.linalg.svd(reshaped_mode, full_matrices=False)
-                s[n_dim:] = 0
+                # Gram matrix approach: avoids cp.linalg.svd on (n²×nFrames) which
+                # overflows CUSOLVER's 32-bit workspace buffer for large Np
+                gram = reshaped_mode.T.conj() @ reshaped_mode       # (nFrames, nFrames)
+                w, V = cp.linalg.eigh(gram)                          # ascending eigenvalues
+                idx = cp.argsort(w)[::-1][:n_dim]                    # top n_dim, descending
+                s = cp.sqrt(cp.maximum(w[idx], 0.0))                 # (n_dim,)
+                Vh = V[:, idx].T.conj()                              # (n_dim, nFrames)
+                U = reshaped_mode @ V[:, idx] / (s[None, :] + 1e-17)  # (n², n_dim)
 
             if self.params.OPR_neighbor_constraint:
                 # Calculate the average of neigboring singular values
