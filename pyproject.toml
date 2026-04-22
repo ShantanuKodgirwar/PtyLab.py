@@ -46,7 +46,7 @@ ptylab = "PtyLab.utils.cli:main"
 testpaths = ["tests"]
 
 [build-system]
-requires = ["uv_build>=0.11.7,<0.12"]
+requires = ["uv_build>=0.10,<0.12"]
 build-backend = "uv_build"
 
 [tool.uv.build-backend]
